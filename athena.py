@@ -10,7 +10,7 @@ import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 # number of s before and after
-seconds_to_capture = 15
+seconds_to_capture = 30
 minimum_clips = 6
 maximum_clips = 12
 
@@ -32,7 +32,10 @@ def get_frame_rate(input_file):
 def get_loud_frames(audio_file, frame_rate):
     # the goal is to measure intervals of above avg decibel levels
     # once we identify all intervals equal or above the threshold,
-    # we spread out the interval to match seconds_to_capture * 2
+    # we spread out the interval to match seconds_to_capture
+
+    # this states we are discovering db levels on this many second intervals
+    seconds_to_discover = 1
 
     sample_rate, audio_data = wavfile.read(audio_file)
     audio_sample_count = audio_data.shape[0]
@@ -64,12 +67,11 @@ def get_loud_frames(audio_file, frame_rate):
     total_db_intervals = 0
     total_intervals = 0
 
-    seconds_to_discover = 1
     frame_intervals = int(math.ceil(seconds_to_discover * frame_rate))
 
-    # we need enough frames to fill out a total of seconds_to_capture * 2
+    # we need enough frames to fill out a total of seconds_to_capture
     frames_to_capture = int(math.ceil(
-        (seconds_to_capture * 2 * frame_rate) - frame_intervals
+        (seconds_to_capture * frame_rate) - frame_intervals
     ) / 2)
 
     # get highest average amongst all intervals
