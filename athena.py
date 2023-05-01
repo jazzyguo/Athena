@@ -33,22 +33,18 @@ def get_frame_rate(input_file):
 
 def get_loud_frames(audio_file, frame_rate):
     sample_rate, audio_data = wavfile.read(audio_file)
-
     audio_sample_count = audio_data.shape[0]
-
     samples_per_frame = sample_rate/frame_rate
-
     audio_frame_count = int(math.ceil(audio_sample_count/samples_per_frame))
 
-    avg_db_level = librosa.power_to_db(np.sqrt(np.mean(np.square(audio_data))), ref=1.0)
-
-    print('average db level', avg_db_level)
     print('audio frame count', audio_frame_count)
+    print('samples per frame', samples_per_frame)
 
     results = []
     current_frame = 0
     audio_chunk_db_levels = []
     highest_db_level = -100
+    total_db_level = 0
 
     # calc highest db level and get db levels for each audio chunk
     for i in range(audio_frame_count):
@@ -56,10 +52,12 @@ def get_loud_frames(audio_file, frame_rate):
         end = min(int((i+1)*samples_per_frame),audio_sample_count)
         audio_chunk = audio_data[start:end]
         rms = np.sqrt(np.mean(np.square(audio_chunk)))
-        db_level = librosa.power_to_db(rms, ref=1.0)
+        db_level = librosa.power_to_db(rms, ref = 1.0)
         audio_chunk_db_levels.append(db_level)
         highest_db_level = max(highest_db_level, db_level)
+        total_db_level += db_level
 
+    avg_db_level = (total_db_level / audio_frame_count)
     threshold = (highest_db_level - avg_db_level) / 2
 
     print('threshold', threshold)
@@ -115,7 +113,7 @@ def cut_clips(input_file, clip_frames):
 
 
 def main():
-    input_file = 'Beast.mp4'
+    input_file = 'tyler1.mp4'
 
     with tempfile.TemporaryDirectory() as temp_dir:
         audio_output = f"{temp_dir}/audio.wav"
@@ -130,7 +128,7 @@ def main():
 
         clip_frames = get_clip_frames(loud_frames, frame_rate, total_frames)
 
-        cut_clips(input_file, clip_frames)
+        # cut_clips(input_file, clip_frames)
 
 
 if __name__ == "__main__":
