@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 from athena import process_video
 
 app = Flask(__name__)
@@ -13,15 +13,18 @@ def index():
 def process_file():
     uploaded_video = request.files['file']
 
+    if uploaded_video is None:
+        abort(400, 'Required video file is missing')
+
     print(f'Video uploaded - {uploaded_video}')
 
-    # save the file to a temporary location
     uploaded_video.save('/tmp/uploaded_file')
 
-    # call your main function on the uploaded file
-    process_video('/tmp/uploaded_file')
+    try:
+        process_video('/tmp/uploaded_file')
+    except ValueError as e:
+        abort(400, str(e))
 
-    # return the result to the user
     return True
 
 
