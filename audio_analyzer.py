@@ -75,9 +75,9 @@ def get_max_db_avg_from_intervals(
         total_db_intervals += interval_db_avg
         total_intervals += 1
 
-    total_avg_intervals = (total_db_intervals / total_intervals)
+    total_db_avg = (total_db_intervals / total_intervals)
 
-    return highest_interval_db_avg, total_avg_intervals
+    return highest_interval_db_avg, total_db_avg
 
 
 def get_loud_frames(audio_file, frame_rate, **kwargs):
@@ -107,18 +107,18 @@ def get_loud_frames(audio_file, frame_rate, **kwargs):
         (seconds_to_capture * frame_rate) - frame_intervals
     ) / 2)
 
-    highest_interval_db_avg, total_avg_intervals = get_max_db_avg_from_intervals(
+    highest_interval_db_avg, total_db_avg = get_max_db_avg_from_intervals(
         frame_intervals,
         audio_frame_count,
         frame_audio_db_levels,
     )
 
-    threshold = ((highest_interval_db_avg - total_avg_intervals) / 2) + \
+    threshold = ((highest_interval_db_avg - total_db_avg) / 2) + \
         (highest_db_level - highest_interval_db_avg)
 
     print('The highest average db for an interval is', highest_interval_db_avg)
     print('The highest db for a single frame is', highest_db_level)
-    print('Total average of all frame intervals', total_avg_intervals)
+    print('Total average of all frame intervals', total_db_avg)
     print(
         f"Identifying frame intervals of {frame_intervals} to see which is the loudest"
     )
@@ -146,7 +146,7 @@ def get_loud_frames(audio_file, frame_rate, **kwargs):
                 frame_audio_db_levels[i:interval_end_frame]
             ) / frame_intervals
 
-            diff = db_level - total_avg_intervals
+            diff = db_level - total_db_avg
 
             # print(
             #     f"Frames {i} - {interval_end_frame} have a db level of {db_level}"
