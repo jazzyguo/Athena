@@ -1,26 +1,29 @@
 from flask import Flask, request
-from athena import processFile
+from athena import process_video
 
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
     return ''
 
-@app.route('/process_file', methods=['POST'])
-def process_file():
-    uploaded_file = request.files['file']
 
-    print(f'File uploaded - {uploaded_file}')
+@app.route('/process_video', methods=['POST'])
+def process_file():
+    uploaded_video = request.files['file']
+
+    print(f'Video uploaded - {uploaded_video}')
 
     # save the file to a temporary location
-    uploaded_file.save('/tmp/uploaded_file')
+    uploaded_video.save('/tmp/uploaded_file')
 
     # call your main function on the uploaded file
-    processFile('/tmp/uploaded_file')
+    process_video('/tmp/uploaded_file')
 
     # return the result to the user
     return True
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
