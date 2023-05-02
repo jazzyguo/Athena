@@ -1,3 +1,3 @@
 docker build -t athena ./
 
-docker run -it athena -v ./clips:/app/clips
+docker run -p 5000:5000 -it -v ./clips:/app/clips athena

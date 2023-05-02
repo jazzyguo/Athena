@@ -52,7 +52,7 @@ def cut_clips(input_file, clip_frames):
         clip.write_videofile(output_file)
 
 
-def main():
+def processFile():
     with tempfile.TemporaryDirectory() as temp_dir:
         audio_output = f"{temp_dir}/audio.wav"
 
@@ -77,4 +77,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    processFile()

@@ -14,7 +14,14 @@ RUN apt-get install -y ffmpeg wget python3 python3-pip
 # install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# set environment variables
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
+# expose the port
+EXPOSE 5000
+
 VOLUME /app/clips
 
 # command to run on container start
-CMD [ "python3", "./athena.py" ]
+CMD [ "flask", "run" ]

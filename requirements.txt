@@ -3,3 +3,4 @@ moviepy
 numpy
 scipy
 ffmpeg-python
+flask
