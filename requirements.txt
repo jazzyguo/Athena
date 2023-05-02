@@ -1,5 +1,5 @@
-ffmpeg
 librosa
 moviepy
 numpy
 scipy
+ffmpeg-python

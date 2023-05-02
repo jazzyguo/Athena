@@ -5,6 +5,8 @@ from fractions import Fraction
 import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from audio_analyzer import get_loud_frames
+from settings import input_file
+
 
 def extract_audio(input_file, output_file):
     command = f"ffmpeg -i '{input_file}' -ab 160k -ac 2 -ar 44100 -vn {output_file}"
@@ -51,8 +53,6 @@ def cut_clips(input_file, clip_frames):
 
 
 def main():
-    input_file = 'nba.mp4'
-
     with tempfile.TemporaryDirectory() as temp_dir:
         audio_output = f"{temp_dir}/audio.wav"
 

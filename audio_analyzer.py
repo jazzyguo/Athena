@@ -4,6 +4,7 @@ import numpy as np
 import librosa
 from settings import seconds_to_capture, minimum_clips, maximum_clips
 
+
 def get_loud_frames(audio_file, frame_rate):
     # the goal is to measure intervals of above avg decibel levels
     # once we identify all intervals equal or above the threshold,
@@ -122,7 +123,8 @@ def get_loud_frames(audio_file, frame_rate):
 
     if (len(results) > maximum_clips):
         print(
-            f"Too many results - retrieving the {maximum_clips} loudest frames")
+            f"Too many results - retrieving the {maximum_clips} loudest frames"
+        )
         sorted_results = sorted(
             results, key=lambda obj: obj['db_level'], reverse=True)
         results = sorted_results[:maximum_clips]
