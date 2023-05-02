@@ -2,17 +2,29 @@ from scipy.io import wavfile
 import math
 import numpy as np
 import librosa
-from settings import seconds_to_capture, minimum_clips, maximum_clips
 
 
-def get_loud_frames(audio_file, frame_rate):
-    # the goal is to measure intervals of above avg decibel levels
-    # once we identify all intervals equal or above the threshold,
-    # we spread out the interval to match seconds_to_capture
+def get_frames_to_clip(frames, total_frames, frames_to_capture):
+    # return an array of arrays with frame [start,end] to get clips for
+    results = []
 
-    # this states we are discovering db levels on this many second intervals
-    seconds_to_discover = 1
+    # append appropriate padding for frames so that we can reach desired clip length
+    for frame_object in frames:
+        interval = frame_object['interval']
+        start_frame = interval[0]
+        end_frame = interval[1]
 
+        # max/min to never go out of bounds of video frames
+        capture_start = max(0, start_frame - frames_to_capture)
+        capture_end = min(total_frames, end_frame + frames_to_capture)
+
+        if (capture_start != 0):
+            results.append([capture_start, capture_end])
+
+    return results
+
+
+def get_db_levels_per_frame(audio_file, frame_rate):
     sample_rate, audio_data = wavfile.read(audio_file)
     audio_sample_count = audio_data.shape[0]
     samples_per_frame = sample_rate/frame_rate
@@ -36,23 +48,22 @@ def get_loud_frames(audio_file, frame_rate):
         frame_audio_db_levels.append(db_level)
         highest_db_level = max(highest_db_level, db_level)
 
+    return frame_audio_db_levels, highest_db_level, audio_frame_count
+
+
+def get_max_db_avg_from_intervals(
+        frame_intervals,
+        total_frames,
+        frame_audio_db_levels,
+):
     # we measure db levels on frame_intervals number of frames
-    results = []
-    current_frame = 0
     highest_interval_db_avg = -100
     total_db_intervals = 0
     total_intervals = 0
 
-    frame_intervals = int(math.ceil(seconds_to_discover * frame_rate))
-
-    # we need enough frames to fill out a total of seconds_to_capture
-    frames_to_capture = int(math.ceil(
-        (seconds_to_capture * frame_rate) - frame_intervals
-    ) / 2)
-
     # get highest average amongst all intervals
-    for i in range(0, audio_frame_count, frame_intervals):
-        interval_end_frame = min(audio_frame_count, i + frame_intervals)
+    for i in range(0, total_frames, frame_intervals):
+        interval_end_frame = min(total_frames, i + frame_intervals)
 
         # average of the current frame interval
         interval_db_avg = sum(
@@ -65,6 +76,43 @@ def get_loud_frames(audio_file, frame_rate):
         total_intervals += 1
 
     total_avg_intervals = (total_db_intervals / total_intervals)
+
+    return highest_interval_db_avg, total_avg_intervals
+
+
+def get_loud_frames(audio_file, frame_rate, **kwargs):
+    # the goal is to measure intervals of above avg decibel levels
+    # once we identify all intervals equal or above the threshold,
+    # we spread out the interval to match seconds_to_capture
+    seconds_to_capture = kwargs['seconds_to_capture']
+    minimum_clips = kwargs['minimum_clips']
+    maximum_clips = kwargs['maximum_clips']
+
+    # this states we are discovering db levels on this many second intervals
+    seconds_to_discover = 1
+
+    (
+        frame_audio_db_levels,
+        highest_db_level,
+        audio_frame_count
+    ) = get_db_levels_per_frame(audio_file, frame_rate)
+
+    # we measure db levels on frame_intervals number of frames
+    results = []
+    current_frame = 0
+
+    frame_intervals = int(math.ceil(seconds_to_discover * frame_rate))
+
+    frames_to_capture = int(math.ceil(
+        (seconds_to_capture * frame_rate) - frame_intervals
+    ) / 2)
+
+    highest_interval_db_avg, total_avg_intervals = get_max_db_avg_from_intervals(
+        frame_intervals,
+        audio_frame_count,
+        frame_audio_db_levels,
+    )
+
     threshold = ((highest_interval_db_avg - total_avg_intervals) / 2) + \
         (highest_db_level - highest_interval_db_avg)
 
@@ -129,4 +177,10 @@ def get_loud_frames(audio_file, frame_rate):
             results, key=lambda obj: obj['db_level'], reverse=True)
         results = sorted_results[:maximum_clips]
 
-    return results, frames_to_capture
+    frames_to_clip = get_frames_to_clip(
+        results,
+        audio_frame_count,
+        frames_to_capture
+    )
+
+    return frames_to_clip
