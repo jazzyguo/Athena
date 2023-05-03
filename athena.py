@@ -5,7 +5,9 @@ from fractions import Fraction
 import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import concurrent.futures
+from typing import List
 from audio_analyzer import get_loud_frames
+from typings import Frames
 from settings import (
     input_file,
     default_seconds_to_capture,
@@ -14,12 +16,12 @@ from settings import (
 )
 
 
-def extract_audio(input_file, output_file):
+def extract_audio(input_file: str, output_file: str) -> None:
     command = f"ffmpeg -i '{input_file}' -ab 160k -ac 2 -ar 44100 -vn {output_file}"
     subprocess.call(command, shell=True)
 
 
-def get_frame_rate(input_file):
+def get_frame_rate(input_file: str) -> float:
     probe = ffmpeg.probe(input_file)
     video_stream = next(
         (stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
@@ -27,7 +29,7 @@ def get_frame_rate(input_file):
     return float(Fraction(frame_rate))
 
 
-def make_clip(input_file, start_frame, end_frame, clip_number):
+def make_clip(input_file: str, start_frame: int, end_frame: int, clip_number: int) -> str:
     print(
         f'Starting to clip {clip_number} - frames {[start_frame, end_frame]}...')
     video = VideoFileClip(input_file)
@@ -37,7 +39,7 @@ def make_clip(input_file, start_frame, end_frame, clip_number):
     return output_file
 
 
-def make_clips(input_file, frames_to_clip):
+def make_clips(input_file: str, frames_to_clip: Frames) -> List[str]:
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         futures = []
         for i, frames in enumerate(frames_to_clip):
@@ -62,18 +64,18 @@ def make_clips(input_file, frames_to_clip):
     return results
 
 
-def process_video(**kwargs):
-    seconds_to_capture = kwargs.get(
+def process_video(**kwargs) -> List[str]:
+    seconds_to_capture: int = kwargs.get(
         'seconds_to_capture', default_seconds_to_capture
     )
-    minimum_clips = kwargs.get('minimum_clips', default_minimum_clips)
-    maximum_clips = kwargs.get('maximum_clips', default_maximum_clips)
+    minimum_clips: int = kwargs.get('minimum_clips', default_minimum_clips)
+    maximum_clips: int = kwargs.get('maximum_clips', default_maximum_clips)
 
     if minimum_clips >= maximum_clips:
         raise ValueError('Minimum must be less than maximum.')
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        audio_output = f"{temp_dir}/audio.wav"
+        audio_output: str = f"{temp_dir}/audio.wav"
 
         extract_audio(input_file, audio_output)
 
@@ -81,7 +83,7 @@ def process_video(**kwargs):
 
         print(f"Frame rate: {frame_rate}")
 
-        frames_to_clip = get_loud_frames(
+        frames_to_clip: Frames = get_loud_frames(
             audio_output,
             frame_rate,
             seconds_to_capture=seconds_to_capture,
@@ -90,9 +92,11 @@ def process_video(**kwargs):
         )
 
         try:
-            make_clips(input_file, frames_to_clip)
+            clips = make_clips(input_file, frames_to_clip)
         except Exception as e:
             print(f"Error generating clips: {e}")
+
+    return clips
 
 
 if __name__ == "__main__":
