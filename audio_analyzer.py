@@ -127,7 +127,7 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
         f"Identifying frame intervals of {frame_intervals} to see which is the loudest"
     )
 
-    while (not results or len(results) < minimum_clips):
+    while ((not results or len(results) < minimum_clips) and threshold > 0):
         print('threshold is currently', threshold)
 
         for i in range(0, audio_frame_count, frame_intervals):

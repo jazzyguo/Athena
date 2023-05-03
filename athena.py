@@ -5,11 +5,12 @@ from fractions import Fraction
 import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import concurrent.futures
-from typing import List
+from typing import List, BinaryIO
+
 from audio_analyzer import get_loud_frames
 from typings import Frames
 from settings import (
-    input_file,
+    default_input_file,
     default_seconds_to_capture,
     default_minimum_clips,
     default_maximum_clips
@@ -33,7 +34,10 @@ def make_clip(input_file: str, start_frame: int, end_frame: int, clip_number: in
     print(
         f'Starting to clip {clip_number} - frames {[start_frame, end_frame]}...')
     video = VideoFileClip(input_file)
-    output_file = f'clips/{os.path.splitext(input_file)[0]}_clip{clip_number}.mp4'
+    path = input_file
+    filename = os.path.basename(path)
+    name = os.path.splitext(filename)[0]
+    output_file = f'clips/{name}_clip{clip_number}.mp4'
     clip = video.subclip(start_frame / video.fps, end_frame / video.fps)
     clip.write_videofile(output_file)
     return output_file
@@ -70,6 +74,7 @@ def process_video(**kwargs) -> List[str]:
     )
     minimum_clips: int = kwargs.get('minimum_clips', default_minimum_clips)
     maximum_clips: int = kwargs.get('maximum_clips', default_maximum_clips)
+    input_file: BinaryIO = kwargs.get('input_file')
 
     if minimum_clips >= maximum_clips:
         raise ValueError('Minimum must be less than maximum.')
@@ -100,4 +105,4 @@ def process_video(**kwargs) -> List[str]:
 
 
 if __name__ == "__main__":
-    process_video()
+    process_video(input_file=default_input_file)
