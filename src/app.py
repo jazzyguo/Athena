@@ -1,7 +1,7 @@
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from athena import process_video
-import sys
+from s3_upload import upload_files_to_s3
 import os
 import time
 from typing import BinaryIO
@@ -28,9 +28,6 @@ def process_file():
     if uploaded_video is None:
         abort(400, 'Required video file is missing')
 
-    print(f'Video uploaded - {uploaded_video}')
-    sys.stdout.flush()
-
     uploaded_video.save(temp_filepath)
 
     clips = []
@@ -41,15 +38,16 @@ def process_file():
         os.remove(temp_filepath)
         abort(400, str(e))
 
-    response = {
-        'clips': clips,
-        'status': 'success',
-        'message': 'The request was successful!'
-    }
-
     os.remove(temp_filepath)
 
-    return jsonify(response), 200
+    uploaded_clips = upload_files_to_s3(clips)
+    list(map(os.remove, clips))
+
+    response = jsonify({
+        'urls': uploaded_clips
+    })
+
+    return response, 200
 
 
 if __name__ == '__main__':

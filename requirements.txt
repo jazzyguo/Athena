@@ -5,3 +5,5 @@ scipy
 ffmpeg-python
 flask
 flask-cors
+boto3
+python-dotenv

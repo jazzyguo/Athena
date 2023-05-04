@@ -10,7 +10,6 @@ from typing import List, BinaryIO
 from audio_analyzer import get_loud_frames
 from typings import Frames
 from settings import (
-    default_input_file,
     default_seconds_to_capture,
     default_minimum_clips,
     default_maximum_clips
@@ -102,7 +101,3 @@ def process_video(**kwargs) -> List[str]:
             print(f"Error generating clips: {e}")
 
     return clips
-
-
-if __name__ == "__main__":
-    process_video(input_file=default_input_file)

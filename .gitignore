@@ -6,3 +6,7 @@ __pycache__/
 
 # Ignore MP4 files in the root directory
 *.mp4
+
+src/__pycache__
+src/clips
+src/.env
