@@ -22,8 +22,9 @@ def process_file():
 
     uploaded_video: BinaryIO = request.files['videoFile']
 
-    file_extension: str = os.path.splitext(uploaded_video.filename)[1]
-    temp_filename = f'{int(time.time())}{file_extension}'
+    filename, file_extension = os.path.splitext(uploaded_video.filename)
+
+    temp_filename = f'{filename}-{int(time.time())}{file_extension}'
 
     if uploaded_video is None:
         abort(400, 'Required video file is missing')
