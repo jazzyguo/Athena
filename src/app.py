@@ -24,24 +24,21 @@ def process_file():
 
     file_extension: str = os.path.splitext(uploaded_video.filename)[1]
     temp_filename = f'{int(time.time())}{file_extension}'
-    temp_filepath = os.path.join('/tmp', temp_filename)
 
     if uploaded_video is None:
         abort(400, 'Required video file is missing')
-
-    uploaded_video.save(temp_filepath)
 
     clips = []
     uploaded_clips = []
 
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
+            temp_filepath = os.path.join(temp_dir, temp_filename)
+            uploaded_video.save(temp_filepath)
+
             clips = process_video(temp_dir, input_file=temp_filepath)
         except ValueError as e:
-            os.remove(temp_filepath)
             abort(400, str(e))
-
-        os.remove(temp_filepath)
 
         uploaded_clips = upload_files_to_s3(clips)
 
