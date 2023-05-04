@@ -4,6 +4,7 @@ from athena import process_video
 from s3_upload import upload_files_to_s3
 import os
 import time
+import tempfile
 from typing import BinaryIO
 
 app = Flask(__name__)
@@ -31,17 +32,18 @@ def process_file():
     uploaded_video.save(temp_filepath)
 
     clips = []
+    uploaded_clips = []
 
-    try:
-        clips = process_video(input_file=temp_filepath)
-    except ValueError as e:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        try:
+            clips = process_video(temp_dir, input_file=temp_filepath)
+        except ValueError as e:
+            os.remove(temp_filepath)
+            abort(400, str(e))
+
         os.remove(temp_filepath)
-        abort(400, str(e))
 
-    os.remove(temp_filepath)
-
-    uploaded_clips = upload_files_to_s3(clips)
-    list(map(os.remove, clips))
+        uploaded_clips = upload_files_to_s3(clips)
 
     response = jsonify({
         'urls': uploaded_clips
