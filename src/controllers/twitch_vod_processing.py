@@ -8,29 +8,34 @@ import subprocess
 import datetime
 
 
+def format_duration(duration_seconds):
+    duration = datetime.timedelta(seconds=int(duration_seconds))
+    return str(duration)
+
+
 def twitch_vod_processing(vod_id):
     max_length = 3600  # time in sec of max length
 
     payload = request.json
 
     access_token = request.headers.get('Authorization')
-    start_time = payload.get('start')
-    end_time = payload.get('end')
+    start_time: str = payload.get('start')  # in seconds
+    end_time: str = payload.get('end')
     user_id = payload.get('user_id')
+
+    start = int(start_time.rstrip("0").rstrip("."))
+    end = int(end_time.rstrip("0").rstrip("."))
 
     if user_id is None:
         abort(401, 'Access Denied')
 
-    if start_time is None or end_time is None:
+    if start is None or end is None:
         abort(400, 'Required timestamps are missing')
 
     # calculate the time difference
-    dt_start = datetime.datetime.strptime(start_time, '%H:%M:%S')
-    dt_end = datetime.datetime.strptime(end_time, '%H:%M:%S')
+    time_diff = end - start
 
-    time_diff = dt_end - dt_start
-
-    if (time_diff.total_seconds() > max_length or dt_start >= dt_end):
+    if (time_diff > max_length or start >= end):
         abort(400, 'Bad timestamps')
 
     clips = []
@@ -47,8 +52,11 @@ def twitch_vod_processing(vod_id):
 
             temp_filepath = os.path.join(temp_dir, temp_filename)
 
+            formatted_start = format_duration(start)
+            formatted_end = format_duration(end)
+
             # Configure twitch-dl options
-            args = ['twitch-dl', 'download', '-q', '720p60', '-s', start_time, '-e', end_time,
+            args = ['twitch-dl', 'download', '-q', '720p60', '-s', formatted_start, '-e', formatted_end,
                     '-f', '.mp4', '-o', temp_filepath, vod_id]
 
             process = subprocess.Popen(args, stdout=True)
