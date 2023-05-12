@@ -1,19 +1,9 @@
-from config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-import boto3
 from botocore.exceptions import ClientError
 import os
 from typing import List
+from s3_client import s3, bucket
 
-bucket = 'clips-development'
-expiration = 3600
-
-s3 = boto3.client(
-    's3',
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name='us-east-2',
-    config=boto3.session.Config(signature_version='s3v4')
-)
+expiration = 86400
 
 
 def generate_presigned_url(file_name, expiration=86400):
