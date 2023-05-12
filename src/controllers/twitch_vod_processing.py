@@ -19,23 +19,20 @@ def twitch_vod_processing(vod_id):
     payload = request.json
 
     access_token = request.headers.get('Authorization')
-    start_time: str = payload.get('start')  # in seconds
-    end_time: str = payload.get('end')
+    start_time: int = payload.get('start')  # in seconds
+    end_time: int = payload.get('end')
     user_id = payload.get('user_id')
-
-    start = int(start_time.rstrip("0").rstrip("."))
-    end = int(end_time.rstrip("0").rstrip("."))
 
     if user_id is None:
         abort(401, 'Access Denied')
 
-    if start is None or end is None:
+    if start_time is None or end_time is None:
         abort(400, 'Required timestamps are missing')
 
     # calculate the time difference
-    time_diff = end - start
+    time_diff = end_time - start_time
 
-    if (time_diff > max_length or start >= end):
+    if (time_diff > max_length or start_time >= end_time):
         abort(400, 'Bad timestamps')
 
     clips = []
@@ -52,8 +49,8 @@ def twitch_vod_processing(vod_id):
 
             temp_filepath = os.path.join(temp_dir, temp_filename)
 
-            formatted_start = format_duration(start)
-            formatted_end = format_duration(end)
+            formatted_start = format_duration(start_time)
+            formatted_end = format_duration(end_time)
 
             # Configure twitch-dl options
             args = ['twitch-dl', 'download', '-q', '720p60', '-s', formatted_start, '-e', formatted_end,
