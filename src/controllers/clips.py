@@ -1,6 +1,7 @@
 from flask import request
 from s3_client import s3, bucket
 from s3_upload import generate_presigned_url
+from datetime import datetime
 
 
 # in firestore, we will have keys of all clips saved/published by the user
@@ -8,7 +9,7 @@ from s3_upload import generate_presigned_url
 
 def get_saved_clips():
     user_id = request.args.get('user_id')
-    return [user_id]
+    return []
 
 # in s3, we can check the {bucket}/{user_id}/temp_clips folder
 # and return signed urls of all the files
@@ -20,9 +21,22 @@ def get_temp_clips():
         Bucket=bucket,
         Prefix=f'{user_id}/temp_clips/'
     )
-    urls = []
+
+    s3_objects = []
+
     for obj in response.get('Contents', []):
+        key = obj['Key']
+        created_at = obj['LastModified']
+
         url = generate_presigned_url(obj['Key'])
+
         if url:
-            urls.append(url)
-    return urls
+            s3_objects.append({
+                "url": url,
+                "key": key,
+                "created_at": created_at
+            })
+
+    sorted_objects = sorted(s3_objects, key=lambda x: x['created_at'])
+
+    return sorted_objects
