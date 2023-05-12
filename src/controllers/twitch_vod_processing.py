@@ -65,7 +65,7 @@ def twitch_vod_processing(vod_id):
             abort(400, str(e))
 
         uploaded_clips = upload_files_to_s3(
-            clips, folder_path=f"{user_id}/temp_clips")
+            clips, folder_path=f"{user_id}/temp_clips", file_prefix="twitch-")
 
     response = jsonify({
         'urls': uploaded_clips
