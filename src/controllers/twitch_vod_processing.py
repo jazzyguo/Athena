@@ -55,8 +55,16 @@ def twitch_vod_processing(vod_id):
             formatted_end = format_duration(end_time)
 
             # Configure twitch-dl options
-            args = ['twitch-dl', 'download', '-q', '720p60', '-s', formatted_start, '-e', formatted_end,
-                    '-f', '.mp4', '-o', temp_filepath, vod_id]
+            args = [
+                'twitch-dl', 'download',
+                '-q', '720p60',
+                '-s', formatted_start,
+                '-e', formatted_end,
+                '-f', '.mp4',
+                '-o', temp_filepath,
+                      vod_id,
+                # '--auth-token', access_token
+            ]
 
             process = subprocess.Popen(args, stdout=True)
             process.wait()
