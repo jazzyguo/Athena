@@ -5,6 +5,14 @@ from datetime import datetime
 
 
 # in firestore, we will have keys of all clips saved/published by the user
+# user.clips.saved: [{
+#    key: string
+#    signed_url: string
+#
+#    published: {
+#       twitter: [{ url, publish_date }]
+#    }
+# }]
 
 
 def get_saved_clips():
@@ -37,6 +45,7 @@ def get_temp_clips():
                 "created_at": created_at
             })
 
-    sorted_objects = sorted(s3_objects, key=lambda x: x['created_at'], reverse=True)
+    sorted_objects = sorted(
+        s3_objects, key=lambda x: x['created_at'], reverse=True)
 
     return sorted_objects
