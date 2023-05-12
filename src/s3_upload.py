@@ -41,12 +41,16 @@ def upload_file_to_s3(file_path: str) -> str:
     return url
 
 
-def upload_files_to_s3(file_paths: List[str]) -> List[str]:
+def upload_files_to_s3(file_paths: List[str], **kwargs) -> List[str]:
+    user_id: str = kwargs.get(
+        'user_id', ''
+    )
+
     uploaded_files = []
 
     for file_path in file_paths:
         try:
-            s3_url = upload_file_to_s3(file_path)
+            s3_url = upload_file_to_s3(f'/{user_id}/{file_path}')
             uploaded_files.append(s3_url)
         except Exception as e:
             print(f'Error uploading {file_path}: {str(e)}')
