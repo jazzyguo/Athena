@@ -16,7 +16,7 @@ s3 = boto3.client(
 )
 
 
-def generate_presigned_url(file_name, expiration=3600):
+def generate_presigned_url(file_name, expiration=86400):
     try:
         response = s3.generate_presigned_url(
             'get_object',

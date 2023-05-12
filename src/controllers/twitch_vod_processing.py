@@ -12,6 +12,8 @@ def format_duration(duration_seconds):
     duration = datetime.timedelta(seconds=int(duration_seconds))
     return str(duration)
 
+# vid files are saved in s3 in {user_id}/temp_clips/twitch-{vod_id}-{timestamp now}_frames-{start}to{end}.mp4
+
 
 def twitch_vod_processing(vod_id):
     max_length = 3600  # time in sec of max length

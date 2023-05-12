@@ -35,7 +35,7 @@ def make_clip(input_file: str, temp_dir: str, start_frame: int, end_frame: int, 
     path = input_file
     filename = os.path.basename(path)
     name = os.path.splitext(filename)[0]
-    output_file = f'{temp_dir}/{name}_clip{clip_number}.mp4'
+    output_file = f'{temp_dir}/{name}__frames-{start_frame}to{end_frame}.mp4'
     clip = video.subclip(start_frame / video.fps, end_frame / video.fps)
     clip.write_videofile(output_file)
     return output_file
