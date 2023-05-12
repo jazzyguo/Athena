@@ -64,7 +64,8 @@ def twitch_vod_processing(vod_id):
         except ValueError as e:
             abort(400, str(e))
 
-        uploaded_clips = upload_files_to_s3(clips, user_id=user_id)
+        uploaded_clips = upload_files_to_s3(
+            clips, folder_path=f"{user_id}/temp_clips")
 
     response = jsonify({
         'urls': uploaded_clips

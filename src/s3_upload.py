@@ -34,23 +34,23 @@ def generate_presigned_url(file_name, expiration=3600):
     return response
 
 
-def upload_file_to_s3(user_id: str, file_path: str) -> str:
-    file_name = f"{user_id}/{os.path.basename(file_path)}"
+def upload_file_to_s3(folder_path: str, file_path: str) -> str:
+    file_name = f"{folder_path}/{os.path.basename(file_path)}"
     s3.upload_file(file_path, bucket, file_name)
     url = generate_presigned_url(file_name)
     return url
 
 
 def upload_files_to_s3(file_paths: List[str], **kwargs) -> List[str]:
-    user_id: str = kwargs.get(
-        'user_id', ''
+    folder_path: str = kwargs.get(
+        'folder_path', ''
     )
 
     uploaded_files = []
 
     for file_path in file_paths:
         try:
-            s3_url = upload_file_to_s3(user_id, file_path)
+            s3_url = upload_file_to_s3(folder_path, file_path)
             uploaded_files.append(s3_url)
         except Exception as e:
             print(f'Error uploading {file_path}: {str(e)}')
