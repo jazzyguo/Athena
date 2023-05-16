@@ -9,21 +9,21 @@ from google.cloud import firestore
 # clips.{user_id}: [{
 #    key: string
 #    url: string
-#
+#    saved: boolean // we use a saved flag, to be able to save the video file in case its gone from temp
 #    published: {
 #       twitter: [{ url, publish_date }]
 #    }
 # }]
 
 
-def get_saved_clips():
-    user_id = request.args.get('user_id')
+def get_saved_clips(user_id):
     clips_ref = db.collection('clips').document(user_id)
 
     results = []
 
     if clips_ref.get().exists:
-        results = clips_ref.get().to_dict().get('saved', [])
+        saved_clips = clips_ref.get().to_dict().get('saved', [])
+        results = [clip for clip in saved_clips if clip.get('saved', False)]
 
     return results
 
@@ -31,8 +31,7 @@ def get_saved_clips():
 # and return signed urls of all the files
 
 
-def get_temp_clips():
-    user_id = request.args.get('user_id')
+def get_temp_clips(user_id):
     response = s3.list_objects_v2(
         Bucket=bucket,
         Prefix=f'{user_id}/temp_clips/'
@@ -59,52 +58,79 @@ def get_temp_clips():
     return sorted_objects
 
 
-def save_clip():
-    json_data = request.get_json()
+def save_clip(user_id, s3_key):
+    # we get the file from s3 and copy it over to the users {user_id}/saved_clips folder
+    temp_file_path = s3_key
+    filename = os.path.basename(s3_key)
 
-    if json_data:
-        user_id = json_data.get('user_id')
-        s3_key = json_data.get('s3_key')
+    saved_file_path = f"{user_id}/saved_clips/{filename}"
 
-        # we get the file from s3 and copy it over to the users {user_id}/saved_clips folder
-        temp_file_path = s3_key
-        filename = os.path.basename(s3_key)
-
-        saved_file_path = f"{user_id}/saved_clips/{filename}"
-
-        s3.copy_object(
-            Bucket=bucket,
-            Key=saved_file_path,
-            CopySource={
-                'Bucket': bucket, 'Key':
-                temp_file_path
-            }
-        )
-
-        # we also add to the users.clips within firestore
-        new_saved_clip = {
-            'key': saved_file_path,
-            'url': f"https://clips-development.s3.amazonaws.com/{saved_file_path}"
+    s3.copy_object(
+        Bucket=bucket,
+        Key=saved_file_path,
+        CopySource={
+            'Bucket': bucket, 'Key':
+            temp_file_path
         }
+    )
 
-        clips_ref = db.collection('clips').document(user_id)
+    # we also add to the users.clips within firestore
+    new_saved_clip = {
+        'saved': True,
+        'key': saved_file_path,
+        'url': f"https://clips-development.s3.amazonaws.com/{saved_file_path}"
+    }
 
-        if clips_ref.get().exists:
-            existing_saved_clips = clips_ref.get().to_dict().get('saved', [])
-            existing_keys = {clip['key'] for clip in existing_saved_clips}
+    clips_ref = db.collection('clips').document(user_id)
+    clips_doc = clips_ref.get()
 
-            if saved_file_path not in existing_keys:
-                # Update the clips document with the new clip
-                clips_ref.update({
-                    'saved': firestore.ArrayUnion([new_saved_clip])
-                })
-        else:
-            # Create the clips document with the new clip
-            clips_ref.set({
-                'saved': [new_saved_clip]
-            })
+    if clips_doc.exists:
+        existing_saved_clips = clips_doc.to_dict().get('saved', [])
 
-        return new_saved_clip
+        for clip in existing_saved_clips:
+            if clip['key'] == saved_file_path:
+                clip['saved'] = True
 
+        # Update the clips document with the modified array
+        clips_ref.update({
+            'saved': existing_saved_clips
+        })
     else:
-        abort(400, 'Params missing')
+        # Create the clips document with the new clip
+        clips_ref.set({
+            'saved': [new_saved_clip]
+        })
+
+    return new_saved_clip
+
+
+def delete_clip(user_id, s3_key):
+    # we get the file from s3 and copy it over to the users {user_id}/temp_clips folder if doesn't exist
+    filename = os.path.basename(s3_key)
+
+    temp_file_path = f"{user_id}/temp_clips/{filename}"
+
+    # Check if the file already exists in the temporary clips directory
+    response = s3.list_objects_v2(Bucket=bucket, Prefix=temp_file_path)
+    file_exists = 'Contents' in response
+
+    # Copy the file to the temporary clips directory if it doesn't exist
+    if not file_exists:
+        s3.copy_object(Bucket=bucket, Key=temp_file_path, CopySource=s3_key)
+
+    s3.delete_object(Bucket=bucket, Key=s3_key)
+
+    # Update the Firestore document
+    clips_ref = db.collection('clips').document(user_id)
+    clips_doc = clips_ref.get()
+
+    if clips_doc.exists:
+        existing_saved_clips = clips_doc.to_dict().get('saved', [])
+
+        for clip in existing_saved_clips:
+            if clip['key'] == s3_key:
+                clip['saved'] = False
+
+        clips_ref.update({'saved': existing_saved_clips})
+
+    return 'Success'

@@ -4,14 +4,9 @@ from s3_upload import upload_files_to_s3
 import os
 import time
 import tempfile
-from typing import BinaryIO
 
 
-def process_file():
-    user_id = request.form.get('user_id')
-
-    uploaded_video: BinaryIO = request.files['videoFile']
-
+def process_file(user_id, uploaded_video):
     filename, file_extension = os.path.splitext(uploaded_video.filename)
 
     temp_filename = f'{filename}-{int(time.time())}{file_extension}'
@@ -34,7 +29,8 @@ def process_file():
         except ValueError as e:
             abort(400, str(e))
 
-        uploaded_clips = upload_files_to_s3(clips, folder_path=f"{user_id}/temp_clips")
+        uploaded_clips = upload_files_to_s3(
+            clips, folder_path=f"{user_id}/temp_clips")
 
     response = jsonify({
         'urls': uploaded_clips
