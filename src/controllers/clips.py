@@ -14,6 +14,11 @@ from google.cloud import firestore
 #       twitter: [{ url, publish_date }]
 #    }
 # }]
+# When we save a clip, we store it in firestore and move in s3 {user_id}/temp_clips/file_name to {user_id}/saved_clips/file_name
+#
+# When we delete a clip, we change the saved boolean on the collection to false, delete the saved s3 file,
+# and move it back into the temp dir. This is because we don't want to lose published information,
+# and we are then able to let the user resee the clip in their temp dir which would normally expire after 24hr
 
 
 def get_saved_clips(user_id):
