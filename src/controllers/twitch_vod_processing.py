@@ -83,7 +83,7 @@ def twitch_vod_processing(vod_id):
             clips, folder_path=f"{user_id}/temp_clips", file_prefix="twitch-")
 
     response = jsonify({
-        'urls': uploaded_clips
+        'clips': uploaded_clips
     })
 
     return response, 200
