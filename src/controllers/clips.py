@@ -18,30 +18,14 @@ from google.cloud import firestore
 
 def get_saved_clips():
     user_id = request.args.get('user_id')
+    clips_ref = db.collection('clips').document(user_id)
 
-    response = s3.list_objects_v2(
-        Bucket=bucket,
-        Prefix=f'{user_id}/saved_clips/'
-    )
+    results = []
 
-    s3_objects = []
+    if clips_ref.get().exists:
+        results = clips_ref.get().to_dict().get('saved', [])
 
-    for obj in response.get('Contents', []):
-        key = obj['Key']
-        created_at = obj['LastModified']
-        url = obj['Url']
-
-        if url:
-            s3_objects.append({
-                "url": url,
-                "key": key,
-                "created_at": created_at
-            })
-
-    sorted_objects = sorted(
-        s3_objects, key=lambda x: x['created_at'], reverse=True)
-
-    return sorted_objects
+    return results
 
 # in s3, we can check the {bucket}/{user_id}/temp_clips folder
 # and return signed urls of all the files
@@ -120,10 +104,7 @@ def save_clip():
                 'saved': [new_saved_clip]
             })
 
-        # Return the updated document from Firestore
-        document = clips_ref.get().to_dict()
-
-        return document
+        return new_saved_clip
 
     else:
         abort(400, 'Params missing')
