@@ -10,3 +10,5 @@
 src/__pycache__
 src/clips
 src/.env
+
+src/firebaseAccountKey.json

@@ -10,3 +10,4 @@ python-dotenv
 twitch-dl
 Flask-SSE
 pytz
+firebase-admin

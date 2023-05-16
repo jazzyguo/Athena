@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from controllers.file_processing import process_file
 from controllers.twitch_vod_processing import twitch_vod_processing
-from controllers.clips import get_saved_clips, get_temp_clips
+from controllers.clips import get_saved_clips, get_temp_clips, save_clip
 
 app = Flask(__name__)
 
@@ -33,6 +33,9 @@ def get_saved_clips_route():
 def get_temp_clips_route():
     return get_temp_clips()
 
+@app.route('/clips/save', methods=['POST'])
+def save_clip_route():
+    return save_clip()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
