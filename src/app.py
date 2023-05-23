@@ -3,7 +3,7 @@ from flask_cors import CORS
 from controllers.file_processing import process_file
 from controllers.twitch_vod_processing import twitch_vod_processing
 from controllers.clips import get_saved_clips, get_temp_clips, save_clip, delete_clip
-from controllers.twitter import twitter_auth, twitter_callback
+from controllers.twitter import twitter_auth, twitter_callback, twitter_auth_delete
 from typing import BinaryIO
 
 app = Flask(__name__)
@@ -52,6 +52,7 @@ def twitch_vod_processing_route(vod_id):
         abort(400, 'Params missing')
 
 
+#CLIPS ROUTES
 @app.route('/clips/saved')
 def get_saved_clips_route():
     user_id = request.args.get('user_id')
@@ -103,15 +104,26 @@ def delete_clip_route():
     else:
         abort(400, 'Params missing')
 
+
+# CONNECT ROUTES
 @app.route('/connect/twitter/auth')
 def twitter_connect_auth_route():
     return twitter_auth()
+
+
+@app.route('/connect/twitter/auth', methods=['DELETE'])
+def twitter_connect_auth_delete_route():
+    user_id = request.args.get('user_id')
+    return twitter_auth_delete(user_id)
+
 
 @app.route('/connect/twitter/callback')
 def twitter_callback_route():
     oauth_token = request.args.get('oauth_token')
     oauth_verifier = request.args.get('oauth_verifier')
-    return twitter_callback(oauth_token, oauth_verifier)
+    user_id = request.args.get('user_id')
+    return twitter_callback(oauth_token, oauth_verifier, user_id)
+
 
 
 if __name__ == '__main__':

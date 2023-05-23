@@ -1,9 +1,7 @@
-from flask import request, abort
 from s3_client import s3, bucket
 from s3_upload import generate_presigned_url
 from firestore_client import db
 import os
-from google.cloud import firestore
 
 # in firestore, we will have keys of all clips saved/published by the user
 # clips.{user_id}: [{
