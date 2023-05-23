@@ -3,6 +3,7 @@ from flask_cors import CORS
 from controllers.file_processing import process_file
 from controllers.twitch_vod_processing import twitch_vod_processing
 from controllers.clips import get_saved_clips, get_temp_clips, save_clip, delete_clip
+from controllers.twitter import twitter_auth, twitter_callback
 from typing import BinaryIO
 
 app = Flask(__name__)
@@ -101,6 +102,16 @@ def delete_clip_route():
         return delete_clip(user_id, s3_key)
     else:
         abort(400, 'Params missing')
+
+@app.route('/connect/twitter/auth')
+def twitter_connect_auth_route():
+    return twitter_auth()
+
+@app.route('/connect/twitter/callback')
+def twitter_callback_route():
+    oauth_token = request.args.get('oauth_token')
+    oauth_verifier = request.args.get('oauth_verifier')
+    return twitter_callback(oauth_token, oauth_verifier)
 
 
 if __name__ == '__main__':
