@@ -3,7 +3,9 @@ from flask_cors import CORS
 from controllers.file_processing import process_file
 from controllers.twitch_vod_processing import twitch_vod_processing
 from controllers.clips import get_saved_clips, get_temp_clips, save_clip, delete_clip
-from controllers.twitter import twitter_auth, twitter_callback, twitter_auth_delete
+from controllers.twitter_auth import twitter_auth, twitter_callback, twitter_auth_delete
+from controllers.twitch_auth import twitch_auth
+from controllers.publish_twitter import clips_publish_twitter
 from typing import BinaryIO
 
 app = Flask(__name__)
@@ -105,6 +107,23 @@ def delete_clip_route():
         abort(400, 'Params missing')
 
 
+# PUBLISH ROUTES
+@app.route('/clips/publish/twitter', methods=['POST'])
+def clips_publish_twitter_route():
+    payload = request.json
+
+    if payload:
+        user_id: str = payload.get('user_id')
+        s3_key: str = payload.get('s3_key')
+
+        if user_id is None:
+            abort(401, 'Access Denied')
+
+        return clips_publish_twitter(user_id, s3_key)
+    else:
+        abort(400, 'Params missing')
+
+
 # CONNECT ROUTES
 @app.route('/connect/twitter/auth')
 def twitter_connect_auth_route():
@@ -122,8 +141,24 @@ def twitter_callback_route():
     oauth_token = request.args.get('oauth_token')
     oauth_verifier = request.args.get('oauth_verifier')
     user_id = request.args.get('user_id')
+
+    if user_id is None:
+            abort(401, 'Access Denied')
+            
     return twitter_callback(oauth_token, oauth_verifier, user_id)
 
+
+@app.route('/connect/twitch/auth', methods=['POST'])
+def twitch_connect_auth_route():
+    payload = request.json
+
+    if payload:
+        redirect_uri: str = payload.get('redirect_uri')
+        code: str = payload.get('code')
+
+        return twitch_auth(code, redirect_uri)
+    else:
+        abort(400, 'Params missing')
 
 
 if __name__ == '__main__':
