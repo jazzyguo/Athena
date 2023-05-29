@@ -62,43 +62,33 @@ def get_temp_clips(user_id):
 
 
 def save_clip(user_id, s3_key):
-    # we get the file from s3 and copy it over to the users {user_id}/saved_clips folder
+    exists = False # we append to firestore and do s3 copying if this stays false
+
+    clips_ref = db.collection('clips').document(user_id)
+    clips_doc = clips_ref.get()
+
     temp_file_path = s3_key
     filename = os.path.basename(s3_key)
 
     saved_file_path = f"{user_id}/saved_clips/{filename}"
 
-    s3.copy_object(
-        Bucket=bucket,
-        Key=saved_file_path,
-        CopySource={
-            'Bucket': bucket, 'Key':
-            temp_file_path
-        }
-    )
-
-    # we also add to the users.clips within firestore
     new_saved_clip = {
         'saved': True,
         'key': saved_file_path,
         'url': f"https://clips-development.s3.amazonaws.com/{saved_file_path}"
     }
 
-    clips_ref = db.collection('clips').document(user_id)
-    clips_doc = clips_ref.get()
-
     if clips_doc.exists:
-        updated_in_place = False
         existing_saved_clips = clips_doc.to_dict().get('saved', [])
 
         for clip in existing_saved_clips:
             if clip['key'] == saved_file_path:
+                exists = True
                 clip['saved'] = True
-                updated_in_place = True
 
-        if updated_in_place == False:
+        if exists == False:
             existing_saved_clips.append(new_saved_clip)
-            
+
         # Update the clips document with the modified array
         clips_ref.update({
             'saved': existing_saved_clips
@@ -108,6 +98,17 @@ def save_clip(user_id, s3_key):
         clips_ref.set({
             'saved': [new_saved_clip]
         })
+
+    # we get the file from s3 and copy it over to the users {user_id}/saved_clips folder
+    if exists == False:
+        s3.copy_object(
+            Bucket=bucket,
+            Key=saved_file_path,
+            CopySource={
+                'Bucket': bucket, 'Key':
+                temp_file_path
+            }
+        )
 
     return new_saved_clip
 
