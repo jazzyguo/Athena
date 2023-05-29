@@ -110,18 +110,15 @@ def delete_clip_route():
 # PUBLISH ROUTES
 @app.route('/clips/publish/twitter', methods=['POST'])
 def clips_publish_twitter_route():
-    payload = request.json
+    user_id = request.form.get('user_id')
+    clip_url = request.form.get('clip_url')
+    content = request.form.get('text')
+    s3_key = request.form.get('s3_key')
 
-    if payload:
-        user_id: str = payload.get('user_id')
-        s3_key: str = payload.get('s3_key')
+    if user_id is None:
+        abort(401, 'Access Denied')
 
-        if user_id is None:
-            abort(401, 'Access Denied')
-
-        return clips_publish_twitter(user_id, s3_key)
-    else:
-        abort(400, 'Params missing')
+    return clips_publish_twitter(user_id, content, s3_key)
 
 
 # CONNECT ROUTES

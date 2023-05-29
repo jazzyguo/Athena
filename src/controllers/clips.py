@@ -4,12 +4,12 @@ from firestore_client import db
 import os
 
 # in firestore, we will have keys of all clips saved/published by the user
-# clips.{user_id}: [{
+# clips.{user_id}.saved: [{
 #    key: string
 #    url: string
 #    saved: boolean // we use a saved flag, to be able to save the video file in case its gone from temp
 #    published: {
-#       twitter: [{ url, publish_date }]
+#       twitter: [{ url, published_at }]
 #    }
 # }]
 # When we save a clip, we store it in firestore and move in s3 {user_id}/temp_clips/file_name to {user_id}/saved_clips/file_name
@@ -88,12 +88,17 @@ def save_clip(user_id, s3_key):
     clips_doc = clips_ref.get()
 
     if clips_doc.exists:
+        updated_in_place = False
         existing_saved_clips = clips_doc.to_dict().get('saved', [])
 
         for clip in existing_saved_clips:
             if clip['key'] == saved_file_path:
                 clip['saved'] = True
+                updated_in_place = True
 
+        if updated_in_place == False:
+            existing_saved_clips.append(new_saved_clip)
+            
         # Update the clips document with the modified array
         clips_ref.update({
             'saved': existing_saved_clips
