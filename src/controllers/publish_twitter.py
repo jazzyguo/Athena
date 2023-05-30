@@ -5,7 +5,6 @@ from firestore_client import db
 import requests
 from io import BytesIO
 from firestore_client import db
-from controllers.clips import save_clip
 import datetime
 
 
@@ -82,7 +81,7 @@ def clips_publish_twitter(user_id, content, clip_url):
                                 clip['published']['twitter'] = []
 
                             clip['published']['twitter'].append({
-                                'tweet_url': tweet_url,
+                                'url': tweet_url,
                                 'published_at': datetime.datetime.now(),
                             })
 
@@ -91,7 +90,7 @@ def clips_publish_twitter(user_id, content, clip_url):
                         'saved': existing_saved_clips
                     })
 
-                return jsonify({'tweet_url': tweet_url}), 200
+                return jsonify({'url': tweet_url}), 200
 
             except tweepy.errors.TweepyException as e:
                 print(e)

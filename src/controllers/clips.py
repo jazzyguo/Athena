@@ -1,3 +1,4 @@
+from flask import jsonify
 from s3_client import s3, bucket
 from s3_upload import generate_presigned_url
 from firestore_client import db
@@ -148,4 +149,7 @@ def delete_clip(user_id, s3_key):
 
         clips_ref.update({'saved': existing_saved_clips})
 
-    return 'Success'
+    # return the new temp signed url
+    temp_url = generate_presigned_url(temp_file_path)
+
+    return jsonify({'temp_url': temp_url, 'key': temp_file_path}), 200

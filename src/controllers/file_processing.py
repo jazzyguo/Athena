@@ -1,4 +1,4 @@
-from flask import request, abort, jsonify
+from flask import abort, jsonify
 from athena import process_video
 from s3_upload import upload_files_to_s3
 import os
