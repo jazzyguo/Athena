@@ -62,7 +62,7 @@ def get_temp_clips(user_id):
 
 
 def save_clip(user_id, s3_key):
-    exists = False # we append to firestore and do s3 copying if this stays false
+    exists = False # we append to firestore
 
     clips_ref = db.collection('clips').document(user_id)
     clips_doc = clips_ref.get()
@@ -100,15 +100,14 @@ def save_clip(user_id, s3_key):
         })
 
     # we get the file from s3 and copy it over to the users {user_id}/saved_clips folder
-    if exists == False:
-        s3.copy_object(
-            Bucket=bucket,
-            Key=saved_file_path,
-            CopySource={
-                'Bucket': bucket, 'Key':
-                temp_file_path
-            }
-        )
+    s3.copy_object(
+        Bucket=bucket,
+        Key=saved_file_path,
+        CopySource={
+            'Bucket': bucket, 'Key':
+            temp_file_path
+        }
+    )
 
     return new_saved_clip
 

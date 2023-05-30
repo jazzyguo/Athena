@@ -113,12 +113,11 @@ def clips_publish_twitter_route():
     user_id = request.form.get('user_id')
     clip_url = request.form.get('clip_url')
     content = request.form.get('text')
-    s3_key = request.form.get('s3_key')
 
     if user_id is None:
         abort(401, 'Access Denied')
 
-    return clips_publish_twitter(user_id, content, s3_key)
+    return clips_publish_twitter(user_id, content, clip_url)
 
 
 # CONNECT ROUTES

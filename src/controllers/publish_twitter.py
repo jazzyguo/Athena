@@ -20,7 +20,7 @@ def authenticate_twitter_v2_api(access_token, access_token_secret):
     return api
 
 
-def clips_publish_twitter(user_id, content, s3_key):
+def clips_publish_twitter(user_id, content, clip_url):
     # Fetch Twitter access tokens from Firestore using user_id
     try:
         user_ref = db.collection('users').document(user_id)
@@ -30,9 +30,6 @@ def clips_publish_twitter(user_id, content, s3_key):
             access_token = user_doc.get('connections').get('twitter').get('access_token')
             access_token_secret = user_doc.get('connections').get('twitter').get('access_token_secret')
             screen_name = user_doc.get('connections').get('twitter').get('screen_name')
-
-            saved_clip = save_clip(user_id, s3_key)
-            media_url = saved_clip['url']
 
             # Authenticate with Twitter API using the access tokens
             auth = tweepy.OAuth1UserHandler(
@@ -45,11 +42,11 @@ def clips_publish_twitter(user_id, content, s3_key):
             api = tweepy.API(auth)
 
             try:
-                media_response = requests.get(media_url)
+                media_response = requests.get(clip_url)
                 file_content = media_response.content
 
                 file_obj = BytesIO(file_content)
-                filename = media_url.split('/')[-1].split('?')[0]
+                filename = clip_url.split('/')[-1].split('?')[0]
 
                 # v1.1 twitter api to upload media
                 media = api.media_upload(
@@ -77,7 +74,7 @@ def clips_publish_twitter(user_id, content, s3_key):
                     existing_saved_clips = clips_doc.to_dict().get('saved', [])
 
                     for clip in existing_saved_clips:
-                        if clip['url'] == media_url:
+                        if clip['url'] == clip_url:
                             if 'published' not in clip:
                                 clip['published'] = {}
 
