@@ -104,8 +104,8 @@ def save_clip(user_id, s3_key):
         Bucket=bucket,
         Key=saved_file_path,
         CopySource={
-            'Bucket': bucket, 'Key':
-            temp_file_path
+            'Bucket': bucket, 
+            'Key': temp_file_path
         }
     )
 
@@ -124,7 +124,14 @@ def delete_clip(user_id, s3_key):
 
     # Copy the file to the temporary clips directory if it doesn't exist
     if not file_exists:
-        s3.copy_object(Bucket=bucket, Key=temp_file_path, CopySource=s3_key)
+        s3.copy_object(
+            Bucket=bucket, 
+            Key=temp_file_path, 
+            CopySource={
+                'Bucket': bucket, 
+                'Key': s3_key,
+            }
+        )
 
     s3.delete_object(Bucket=bucket, Key=s3_key)
 
