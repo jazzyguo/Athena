@@ -8,6 +8,14 @@ import pytz
 expiration = 86400
 
 
+def generate_timestamp():
+    # Get the current timestamp in GMT format like s3 does
+    gmt = pytz.timezone('GMT')
+    current_time = datetime.now(gmt)
+    timestamp = current_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
+    return timestamp 
+
+
 def generate_presigned_url(file_name, expiration=86400):
     try:
         response = s3.generate_presigned_url(
@@ -31,10 +39,7 @@ def upload_file_to_s3(folder_path: str, file_path: str, file_prefix: str):
     s3.upload_file(file_path, bucket, file_name)
     url = generate_presigned_url(file_name)
 
-    # Get the current timestamp in GMT format like s3 does
-    gmt = pytz.timezone('GMT')
-    current_time = datetime.now(gmt)
-    timestamp = current_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
+    timestamp = generate_timestamp()
 
     uploaded_file = {
         "url": url,

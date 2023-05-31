@@ -1,6 +1,6 @@
 from flask import jsonify
 from s3_client import s3, bucket
-from s3_upload import generate_presigned_url
+from s3_upload import generate_presigned_url, generate_timestamp
 from firestore_client import db
 import os
 
@@ -152,4 +152,10 @@ def delete_clip(user_id, s3_key):
     # return the new temp signed url
     temp_url = generate_presigned_url(temp_file_path)
 
-    return jsonify({'temp_url': temp_url, 'key': temp_file_path}), 200
+    timestamp = generate_timestamp()
+
+    return jsonify({
+        'temp_url': temp_url, 
+        'key': temp_file_path, 
+        'created_at': timestamp
+    }), 200

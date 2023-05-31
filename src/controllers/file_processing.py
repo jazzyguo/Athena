@@ -30,10 +30,12 @@ def process_file(user_id, uploaded_video):
             abort(400, str(e))
 
         uploaded_clips = upload_files_to_s3(
-            clips, folder_path=f"{user_id}/temp_clips")
+            clips, 
+            folder_path=f"{user_id}/temp_clips"
+        )
 
     response = jsonify({
-        'urls': uploaded_clips
+        'clips': uploaded_clips
     })
 
     return response, 200
