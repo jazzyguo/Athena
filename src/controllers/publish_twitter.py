@@ -4,7 +4,6 @@ from config import TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_BEARER_TOKEN
 from firestore_client import db
 import requests
 from io import BytesIO
-from firestore_client import db
 import datetime
 
 

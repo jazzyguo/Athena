@@ -32,7 +32,7 @@ def twitch_vod_processing_route(vod_id):
     max_length = 3600  # time in sec of max length
 
     if payload:
-        access_token = request.headers.get('Authorization')
+        # access_token = request.headers.get('Authorization')
         start_time: int = payload.get('start')  # in seconds
         end_time: int = payload.get('end')
         user_id = payload.get('user_id')
@@ -49,7 +49,7 @@ def twitch_vod_processing_route(vod_id):
         if (time_diff > max_length or start_time >= end_time):
             abort(400, 'Bad timestamps')
 
-        return twitch_vod_processing(vod_id, access_token, start_time, end_time, user_id)
+        return twitch_vod_processing(vod_id, start_time, end_time, user_id)
     else:
         abort(400, 'Params missing')
 
