@@ -5,6 +5,7 @@ scipy
 ffmpeg-python
 flask
 flask-cors
+flask_jwt_extended
 boto3
 python-dotenv
 twitch-dl

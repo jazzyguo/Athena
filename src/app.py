@@ -1,5 +1,6 @@
 from flask import Flask, abort, request
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from controllers.file_processing import process_file
 from controllers.twitch_vod_processing import twitch_vod_processing
 from controllers.clips import get_saved_clips, get_temp_clips, save_clip, delete_clip
@@ -7,8 +8,11 @@ from controllers.twitter_auth import twitter_auth, twitter_callback, twitter_aut
 from controllers.twitch_auth import twitch_auth
 from controllers.publish_twitter import clips_publish_twitter
 from typing import BinaryIO
+from config.constants import JWT_SECRET
 
 app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = JWT_SECRET   
+jwt = JWTManager(app)
 
 CORS(app)
 
