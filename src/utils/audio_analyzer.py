@@ -3,7 +3,7 @@ import math
 import numpy as np
 import librosa
 from typing import List, Tuple
-from typings import Frames, CalculatedFrame
+from utils.typings import Frames, CalculatedFrame
 
 
 def get_frames_to_clip(frames: Frames, total_frames: int, frames_to_capture: int) -> Frames:
