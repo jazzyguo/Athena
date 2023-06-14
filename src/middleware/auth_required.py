@@ -1,10 +1,26 @@
-from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+from flask import abort, request
+from functools import wraps
+from firebase_admin import auth
 
 def auth_required(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
-        verify_jwt_in_request()
-        current_user = get_jwt_identity()
-        # Perform any additional user authorization checks here if needed
-        return fn(current_user, *args, **kwargs)
+        auth_header = request.headers.get('Authorization')
+
+        if auth_header and auth_header.startswith('Bearer '):
+            access_token = auth_header.split(' ')[1]
+
+            try:
+                decoded_user = auth.verify_id_token(access_token)
+
+                if decoded_user and 'uid' in decoded_user:
+                    request.user_id = decoded_user['uid']
+                    return fn(*args, **kwargs)
+                else:
+                    abort(401, 'Unauthorized')
+
+            except auth.InvalidIdTokenError:
+                abort(401, 'Unauthorized')
+
+
     return decorated
