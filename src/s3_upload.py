@@ -1,7 +1,7 @@
 from botocore.exceptions import ClientError
 import os
 from typing import List
-from s3_client import s3, bucket
+from s3_client import s3, temp_bucket
 from datetime import datetime
 import pytz
 
@@ -21,7 +21,7 @@ def generate_presigned_url(file_name, expiration=86400):
         response = s3.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': bucket,
+                'Bucket': temp_bucket,
                 'Key': file_name
             },
             ExpiresIn=expiration
@@ -36,7 +36,7 @@ def generate_presigned_url(file_name, expiration=86400):
 
 def upload_file_to_s3(folder_path: str, file_path: str, file_prefix: str):
     file_name = f"{folder_path}/{file_prefix}{os.path.basename(file_path)}"
-    s3.upload_file(file_path, bucket, file_name)
+    s3.upload_file(file_path, temp_bucket, file_name)
     url = generate_presigned_url(file_name)
 
     timestamp = generate_timestamp()

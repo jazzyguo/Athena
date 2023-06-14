@@ -31,7 +31,7 @@ def process_file(user_id, uploaded_video):
 
         uploaded_clips = upload_files_to_s3(
             clips, 
-            folder_path=f"{user_id}/temp_clips"
+            folder_path=f"{user_id}"
         )
 
     response = jsonify({

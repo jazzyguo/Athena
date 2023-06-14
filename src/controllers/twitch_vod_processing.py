@@ -7,7 +7,7 @@ import tempfile
 import subprocess
 import datetime
 from firestore_client import db
-
+from config import MODE
 
 def format_duration(duration_seconds):
     duration = datetime.timedelta(seconds=int(duration_seconds))
@@ -48,8 +48,10 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                     '-f', '.mp4',
                     '-o', temp_filepath,
                         vod_id,
-                    # '--auth-token', access_token
                 ]
+
+                if MODE == 'production':
+                    args += ['--auth-token', access_token]
 
                 process = subprocess.Popen(args, stdout=True)
                 process.wait()
@@ -65,7 +67,10 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                 abort(400, str(e))
 
             uploaded_clips = upload_files_to_s3(
-                clips, folder_path=f"{user_id}/temp_clips", file_prefix="twitch-")
+                clips, 
+                folder_path=f"{user_id}", 
+                file_prefix="twitch-"
+            )
 
         response = jsonify({
             'clips': uploaded_clips

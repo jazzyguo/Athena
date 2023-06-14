@@ -1,5 +1,5 @@
 from flask import jsonify
-from s3_client import s3, bucket
+from s3_client import s3, media_bucket, temp_bucket
 from s3_upload import generate_presigned_url, generate_timestamp
 from firestore_client import db
 import os
@@ -31,14 +31,14 @@ def get_saved_clips(user_id):
 
     return results
 
-# in s3, we can check the {bucket}/{user_id}/temp_clips folder
+# in s3, we can check the temp bucket folder
 # and return signed urls of all the files
 
 
 def get_temp_clips(user_id):
     response = s3.list_objects_v2(
-        Bucket=bucket,
-        Prefix=f'{user_id}/temp_clips/'
+        Bucket=temp_bucket,
+        Prefix=f'{user_id}/'
     )
 
     s3_objects = []
@@ -68,22 +68,17 @@ def save_clip(user_id, s3_key):
     clips_ref = db.collection('clips').document(user_id)
     clips_doc = clips_ref.get()
 
-    temp_file_path = s3_key
-    filename = os.path.basename(s3_key)
-
-    saved_file_path = f"{user_id}/saved_clips/{filename}"
-
     new_saved_clip = {
         'saved': True,
-        'key': saved_file_path,
-        'url': f"https://clips-development.s3.amazonaws.com/{saved_file_path}"
+        'key': s3_key,
+        'url': f"https://{media_bucket}.s3.amazonaws.com/{s3_key}"
     }
 
     if clips_doc.exists:
         existing_saved_clips = clips_doc.to_dict().get('saved', [])
 
         for clip in existing_saved_clips:
-            if clip['key'] == saved_file_path:
+            if clip['key'] == s3_key:
                 exists = True
                 clip['saved'] = True
 
@@ -100,13 +95,13 @@ def save_clip(user_id, s3_key):
             'saved': [new_saved_clip]
         })
 
-    # we get the file from s3 and copy it over to the users {user_id}/saved_clips folder
+    # we get the file from s3 and copy it over to the media folder
     s3.copy_object(
-        Bucket=bucket,
-        Key=saved_file_path,
+        Bucket=media_bucket,
+        Key=s3_key,
         CopySource={
-            'Bucket': bucket, 
-            'Key': temp_file_path
+            'Bucket': temp_bucket, 
+            'Key': s3_key
         }
     )
 
@@ -114,27 +109,24 @@ def save_clip(user_id, s3_key):
 
 
 def delete_clip(user_id, s3_key):
-    # we get the file from s3 and copy it over to the users {user_id}/temp_clips folder if doesn't exist
-    filename = os.path.basename(s3_key)
+    # we get the file from s3 and copy it over to the users temp bucket if doesn't exist
 
-    temp_file_path = f"{user_id}/temp_clips/{filename}"
-
-    # Check if the file already exists in the temporary clips directory
-    response = s3.list_objects_v2(Bucket=bucket, Prefix=temp_file_path)
+    # Check if the file already exists in the temp bucket
+    response = s3.list_objects_v2(Bucket=temp_bucket, Prefix=s3_key)
     file_exists = 'Contents' in response
 
     # Copy the file to the temporary clips directory if it doesn't exist
     if not file_exists:
         s3.copy_object(
-            Bucket=bucket, 
-            Key=temp_file_path, 
+            Bucket=temp_bucket, 
+            Key=s3_key, 
             CopySource={
-                'Bucket': bucket, 
+                'Bucket': media_bucket, 
                 'Key': s3_key,
             }
         )
 
-    s3.delete_object(Bucket=bucket, Key=s3_key)
+    s3.delete_object(Bucket=media_bucket, Key=s3_key)
 
     # Update the Firestore document
     clips_ref = db.collection('clips').document(user_id)
@@ -150,12 +142,12 @@ def delete_clip(user_id, s3_key):
         clips_ref.update({'saved': existing_saved_clips})
 
     # return the new temp signed url
-    temp_url = generate_presigned_url(temp_file_path)
+    temp_url = generate_presigned_url(s3_key)
 
     timestamp = generate_timestamp()
 
     return jsonify({
         'temp_url': temp_url, 
-        'key': temp_file_path, 
+        'key': s3_key, 
         'created_at': timestamp
     }), 200

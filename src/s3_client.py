@@ -1,7 +1,8 @@
-from config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET
+from config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_MEDIA_BUCKET, AWS_S3_TEMP_BUCKET
 import boto3
 
-bucket = AWS_S3_BUCKET or 'clips-development'
+temp_bucket = AWS_S3_TEMP_BUCKET or 'famemachine-temp-dev'
+media_bucket = AWS_S3_MEDIA_BUCKET or 'famemachine-dev'
 
 s3 = boto3.client(
     's3',
