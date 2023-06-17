@@ -76,6 +76,10 @@ def save_clip_route():
 
     if payload:
         s3_key: str = payload.get('s3_key')
+
+        if s3_key is None:
+            abort(400, 'Required s3 key missing')
+
         return save_clip(user_id, s3_key)
     else:
         abort(400, 'Params missing')
@@ -89,6 +93,10 @@ def delete_clip_route():
 
     if payload:
         s3_key: str = payload.get('s3_key')
+
+        if s3_key is None:
+            abort(400, 'Required s3 key missing')
+
         return delete_clip(user_id, s3_key)
     else:
         abort(400, 'Params missing')
