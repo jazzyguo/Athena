@@ -146,7 +146,7 @@ def delete_clip(user_id, s3_key):
     timestamp = generate_timestamp()
 
     return jsonify({
-        'temp_url': temp_url, 
+        'url': temp_url, 
         'key': s3_key, 
         'created_at': timestamp
     }), 200
