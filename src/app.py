@@ -85,10 +85,11 @@ def save_clip_route():
         abort(400, 'Params missing')
 
 
-@app.route('/clips/save/<s3_key>', methods=['DELETE'])
+@app.route('/clips/save', methods=['DELETE'])
 @auth_required
-def delete_clip_route(s3_key):
+def delete_clip_route():
     user_id = request.user_id
+    s3_key = request.args.get('s3_key')
 
     if s3_key is None:
         abort(400, 'Required s3 key missing')
