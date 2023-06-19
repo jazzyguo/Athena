@@ -1,7 +1,9 @@
 version: "3.7"
 services:
-  flask:
-    build: ./
+  athena:
+    build:
+      context: ./
+      dockerfile: Dockerfile.local
     entrypoint:
       - flask
       - run
@@ -12,4 +14,4 @@ services:
     ports: 
       - 5000:5000
     volumes:
-      - ./api:/app
+      - ./api:/app/api
