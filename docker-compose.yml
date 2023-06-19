@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  athena:
+  api:
     build:
       context: ./
       dockerfile: Dockerfile.local

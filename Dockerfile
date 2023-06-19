@@ -5,9 +5,7 @@ FROM python:3.8
 WORKDIR /app
 
 # Copy the contents into the container at /app
-COPY ./requirements.txt ./app.py firebaseAccountKey.json /app/
-COPY ./api/ /app/api
-COPY .env /app/api
+COPY . .
 
 # download and install dependencies
 RUN apt-get -y update
