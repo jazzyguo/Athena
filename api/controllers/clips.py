@@ -1,7 +1,6 @@
 from flask import jsonify
-from config.s3_client import s3, media_bucket, temp_bucket
-from utils.s3_upload import generate_presigned_url, generate_timestamp
-from config.firestore_client import db
+from api.s3 import generate_presigned_url, generate_timestamp, s3, media_bucket, temp_bucket
+from api.firestore import db
 
 # in firestore, we will have keys of all clips saved/published by the user
 # clips.{user_id}.saved: [{

@@ -1,22 +1,25 @@
-from flask import Flask, abort, request
-from flask_cors import CORS
-from controllers.file_processing import process_file
-from controllers.twitch_vod_processing import twitch_vod_processing
-from controllers.clips import get_saved_clips, get_temp_clips, save_clip, delete_clip
-from controllers.twitter_auth import twitter_auth, twitter_callback, twitter_auth_delete
-from controllers.twitch_auth import twitch_auth
-from controllers.publish_twitter import clips_publish_twitter
+from flask import abort, request
 from typing import BinaryIO
-from middleware.auth_required import auth_required
-
-
-app = Flask(__name__)
-CORS(app)
+from .middleware import auth_required
+from .controllers import (
+    process_file, 
+    twitch_vod_processing, 
+    get_saved_clips, 
+    get_temp_clips, 
+    save_clip,
+    delete_clip,
+    twitter_auth,  
+    twitter_callback,
+    twitter_auth_delete,
+    twitch_auth,
+    clips_publish_twitter
+)
+from app import app
 
 
 @app.route('/')
 def index():
-    return ''
+    return 'asd'
 
 
 @app.route('/process_file', methods=['POST'])
@@ -144,7 +147,3 @@ def twitch_connect_auth_route():
         return twitch_auth(code, redirect_uri)
     else:
         abort(400, 'Params missing')
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')

@@ -6,9 +6,8 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 import concurrent.futures
 from typing import List, BinaryIO
 
-from utils.audio_analyzer import get_loud_frames
-from utils.typings import Frames
-from config.settings import (
+from .audio_analyzer import get_loud_frames, Frames
+from api.config import (
     default_seconds_to_capture,
     default_minimum_clips,
     default_maximum_clips

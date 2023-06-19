@@ -1,7 +1,7 @@
 from botocore.exceptions import ClientError
 import os
 from typing import List
-from config.s3_client import s3, temp_bucket
+from .client import s3, temp_bucket
 from datetime import datetime
 import pytz
 

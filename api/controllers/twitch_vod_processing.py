@@ -1,13 +1,13 @@
 from flask import  abort, jsonify
-from utils.athena import process_video
-from utils.s3_upload import upload_files_to_s3
+from api.utils import process_video
+from api.s3 import upload_files_to_s3
 import os
 import time
 import tempfile
 import subprocess
 import datetime
-from config.firestore_client import db
-from config.constants import MODE
+from api.firestore import db
+from api.constants import MODE
 
 def format_duration(duration_seconds):
     duration = datetime.timedelta(seconds=int(duration_seconds))

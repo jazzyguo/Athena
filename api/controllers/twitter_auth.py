@@ -1,7 +1,7 @@
 from flask import abort, jsonify
 import tweepy
-from config.constants import TWITTER_API_KEY, TWITTER_API_SECRET
-from config.firestore_client import db
+from api.constants import TWITTER_API_KEY, TWITTER_API_SECRET
+from api.firestore import db
 
 def twitter_auth():
     auth = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_SECRET)

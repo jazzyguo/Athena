@@ -1,6 +1,6 @@
 from flask import abort, jsonify
-from utils.athena import process_video
-from utils.s3_upload import upload_files_to_s3
+from api.utils import process_video
+from api.s3 import upload_files_to_s3
 import os
 import time
 import tempfile

@@ -1,7 +1,7 @@
 from flask import abort, jsonify
 import tweepy
-from config.constants import TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_BEARER_TOKEN
-from config.firestore_client import db
+from api.constants import TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_BEARER_TOKEN
+from api.firestore import db
 import requests
 from io import BytesIO
 import datetime

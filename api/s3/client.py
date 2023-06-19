@@ -1,4 +1,4 @@
-from config.constants import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_MEDIA_BUCKET, AWS_S3_TEMP_BUCKET
+from api.constants import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_MEDIA_BUCKET, AWS_S3_TEMP_BUCKET
 import boto3
 
 temp_bucket = AWS_S3_TEMP_BUCKET or 'famemachine-temp-dev'
