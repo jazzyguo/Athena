@@ -1,27 +1,22 @@
-# set base image (host OS)
-FROM python:3.8
+# Use the Heroku Python buildpack
+FROM heroku/python
 
-# set the working directory in the container
+# Set the working directory in the container
 WORKDIR /app
 
 # Copy the contents into the container at /app
 COPY . .
 
-# download and install dependencies
-RUN apt-get -y update
-RUN apt-get install -y ffmpeg wget python3 python3-pip
-
-# install dependencies
+# Install dependencies 
+RUN apt-get update && apt-get install -y ffmpeg
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install gunicorn
 
-# set environment variables
+# Set environment variables
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
-# expose the port
+# Expose the port
 EXPOSE 5000
 
-# specify the entry point and command to run the WSGI server
-ENTRYPOINT ["gunicorn"]
-CMD ["wsgi:app", "--bind", "0.0.0.0:5000", "--workers", "4"]
+# Specify the entry point and command to run the WSGI server
+CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:5000", "--workers", "4"]
