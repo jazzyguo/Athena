@@ -2,7 +2,6 @@ librosa
 moviepy
 numpy
 scipy
-ffmpeg-python
 flask
 flask-cors
 boto3

@@ -38,7 +38,8 @@ def get_db_levels_per_frame(audio_file: str, frame_rate: float) -> Tuple[List[in
     audio_sample_count: int = audio_data.shape[0]
     samples_per_frame: float = sample_rate/frame_rate
     audio_frame_count: int = int(
-        math.ceil(audio_sample_count/samples_per_frame))
+        math.ceil(audio_sample_count/samples_per_frame)
+    )
 
     print('audio frame count', audio_frame_count)
     print('samples per frame', samples_per_frame)

@@ -1,6 +1,4 @@
 import subprocess
-import ffmpeg
-from fractions import Fraction
 import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import concurrent.futures
@@ -20,11 +18,12 @@ def extract_audio(input_file: str, output_file: str) -> None:
 
 
 def get_frame_rate(input_file: str) -> float:
-    probe = ffmpeg.probe(input_file)
-    video_stream = next(
-        (stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
-    frame_rate = video_stream['avg_frame_rate']
-    return float(Fraction(frame_rate))
+    ffprobe_command = f"ffprobe -v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=noprint_wrappers=1:nokey=1 '{input_file}'"
+    ffprobe_output = subprocess.check_output(
+        ffprobe_command, shell=True).decode().strip()
+
+    frame_rate = eval(ffprobe_output)
+    return frame_rate
 
 
 def make_clip(input_file: str, temp_dir: str, start_frame: int, end_frame: int, clip_number: int) -> str:
