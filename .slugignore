@@ -1,0 +1,29 @@
+# Development files
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Compiled files
+*.pyc
+*.pyo
+*.pyd
+*.class
+
+# Logs and temporary files
+*.log
+*.tmp
+logs/
+tmp/
+
+# Test files
+tests/
+test/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE-specific files
+.DS_Store
