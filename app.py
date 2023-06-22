@@ -1,8 +1,10 @@
-from api import routes
 from api import create_app
 
 
 app = create_app()
+
+
+from api import routes
 
 
 if __name__ == '__main__':
