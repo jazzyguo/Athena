@@ -50,7 +50,7 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                         vod_id,
                 ]
 
-                if MODE == 'production':
+                if MODE == 'production' and user_id != 'n7wHc2evvDVlhlJHV29R1Px6Zgk1':
                     args += ['--auth-token', access_token]
 
                 process = subprocess.Popen(args, stdout=True)
