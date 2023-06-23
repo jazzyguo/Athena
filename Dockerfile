@@ -8,9 +8,6 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies 
-# RUN apt-get -y update
-# RUN apt-get install -y ffmpeg wget
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set environment variables
