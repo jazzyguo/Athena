@@ -13,7 +13,7 @@ CalculatedFrame = TypedDict(
 )
 
 
-def get_frames_to_clip(frames: Frames, total_frames: int, frames_to_capture: int) -> Frames:
+def get_frames_to_clip(frames: Frames, total_frames: int, frames_to_capture_before: int, frames_to_capture_after: int) -> Frames:
     # return an array of arrays with frame [start,end] to get clips for
     results: Frames = []
 
@@ -24,8 +24,8 @@ def get_frames_to_clip(frames: Frames, total_frames: int, frames_to_capture: int
         end_frame: int = interval[1]
 
         # max/min to never go out of bounds of video frames
-        capture_start = max(0, start_frame - frames_to_capture)
-        capture_end = min(total_frames, end_frame + frames_to_capture)
+        capture_start = max(0, start_frame - frames_to_capture_before)
+        capture_end = min(total_frames, end_frame + frames_to_capture_after)
 
         if (capture_start != 0):
             results.append([capture_start, capture_end])
@@ -101,7 +101,7 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
     maximum_clips: int = kwargs['maximum_clips']
 
     # this states we are discovering db levels on this many second intervals
-    seconds_to_discover: int = 1
+    seconds_to_discover: int = 3
 
     (
         frame_audio_db_levels,
@@ -118,6 +118,11 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
     frames_to_capture = int(math.ceil(
         (seconds_to_capture * frame_rate) - frame_intervals
     ) / 2)
+
+    # capture more frames before than after (1.5x)
+    frames_to_capture_after = int(math.ceil(frames_to_capture / 2))
+
+    frames_to_capture_before = frames_to_capture + frames_to_capture_after
 
     highest_interval_db_avg, total_db_avg = get_max_db_avg_from_intervals(
         frame_intervals,
@@ -168,8 +173,9 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
                 print(
                     f"Frames {i} - {interval_end_frame} added as loud with db level of {db_level}"
                 )
+
                 # capture this amount of frames before and after current frame based on how many seconds
-                capture_end = min(audio_frame_count, i + frames_to_capture)
+                capture_end = min(audio_frame_count, i + frames_to_capture_after)
 
                 results.append({
                     'interval': [i, interval_end_frame],
@@ -192,7 +198,8 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
     frames_to_clip = get_frames_to_clip(
         results,
         audio_frame_count,
-        frames_to_capture
+        frames_to_capture_before,
+        frames_to_capture_after,
     )
 
     return frames_to_clip
