@@ -15,3 +15,4 @@ services:
       - 5000:5000
     volumes:
       - ./api:/app/api
+      - ./app.py:/app/app.py

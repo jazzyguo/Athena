@@ -2,24 +2,24 @@ from flask import abort, request
 from typing import BinaryIO
 from .middleware import auth_required
 from .controllers import (
-    process_file, 
-    twitch_vod_processing, 
-    get_saved_clips, 
-    get_temp_clips, 
+    process_file,
+    twitch_vod_processing,
+    get_saved_clips,
+    get_temp_clips,
     save_clip,
     delete_clip,
-    twitter_auth,  
+    twitter_auth,
     twitter_callback,
     twitter_auth_delete,
     twitch_auth,
     clips_publish_twitter
 )
-from app import app
+from app import app, socketio
 
 
 @app.route('/')
 def index():
-    return 'asd'
+    return ''
 
 
 @app.route('/process_file', methods=['POST'])
@@ -51,12 +51,14 @@ def twitch_vod_processing_route(vod_id):
         if (time_diff > max_length or start_time >= end_time):
             abort(400, 'Bad timestamps')
 
+        socketio.emit('twitch_vod_processed', 'hello')
+
         return twitch_vod_processing(vod_id, start_time, end_time, user_id)
     else:
         abort(400, 'Params missing')
 
 
-#CLIPS ROUTES
+# CLIPS ROUTES
 @app.route('/clips/saved')
 @auth_required
 def get_saved_clips_route():
@@ -131,7 +133,7 @@ def twitter_callback_route():
     user_id = request.user_id
     oauth_token = request.args.get('oauth_token')
     oauth_verifier = request.args.get('oauth_verifier')
-            
+
     return twitter_callback(oauth_token, oauth_verifier, user_id)
 
 
