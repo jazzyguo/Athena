@@ -15,6 +15,7 @@ from .controllers import (
     clips_publish_twitter
 )
 from app import app, socketio
+import threading
 
 
 @app.route('/')
@@ -29,6 +30,15 @@ def process_file_route():
     uploaded_video: BinaryIO = request.files['videoFile']
 
     return process_file(user_id, uploaded_video)
+
+
+def process_twitch_vod_async(vod_id, start_time, end_time, user_id):
+    def task():
+        clips = twitch_vod_processing(vod_id, start_time, end_time, user_id)
+        socketio.emit(f'twitch_vod_processed_{user_id}', clips)
+
+    thread = threading.Thread(target=task)
+    thread.start()
 
 
 @app.route('/twitch/process_vod/<vod_id>', methods=['POST'])
@@ -51,9 +61,16 @@ def twitch_vod_processing_route(vod_id):
         if (time_diff > max_length or start_time >= end_time):
             abort(400, 'Bad timestamps')
 
-        socketio.emit('twitch_vod_processed', 'hello')
+        process_twitch_vod_async(
+            vod_id,
+            start_time,
+            end_time,
+            user_id,
+        )
 
-        return twitch_vod_processing(vod_id, start_time, end_time, user_id)
+        return {
+            'message': 'Vod processing received'
+        }, 200
     else:
         abort(400, 'Params missing')
 
