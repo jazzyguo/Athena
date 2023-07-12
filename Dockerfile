@@ -18,4 +18,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # Specify the entry point and command to run the WSGI server
-CMD ["gunicorn", "--worker-class", "gevent-websocket", "-b", "0.0.0.0:5000" "-w", "1", "app:app"]
+CMD ["gunicorn", "--worker-class", "eventlet", "-b", "0.0.0.0:5000" "-w", "1", "app:app"]
