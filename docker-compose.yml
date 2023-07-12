@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.local
     entrypoint:
       - gunicorn
-      - --worker-class=gevent
+      - --worker-class=eventlet
       - --bind=0.0.0.0:5000
       - app:app
     environment:
