@@ -3,7 +3,6 @@ from typing import BinaryIO
 from .middleware import auth_required
 from .controllers import (
     process_file,
-    twitch_vod_processing,
     get_saved_clips,
     get_temp_clips,
     save_clip,
@@ -14,8 +13,8 @@ from .controllers import (
     twitch_auth,
     clips_publish_twitter
 )
-from app import app, socketio
-import threading
+from .utils import process_twitch_vod_async
+from app import app
 
 
 @app.route('/')
@@ -30,15 +29,6 @@ def process_file_route():
     uploaded_video: BinaryIO = request.files['videoFile']
 
     return process_file(user_id, uploaded_video)
-
-
-def process_twitch_vod_async(vod_id, start_time, end_time, user_id):
-    def task():
-        twitch_vod_processing(vod_id, start_time, end_time, user_id)
-        socketio.emit(f'twitch_vod_processed_{user_id}')
-
-    thread = threading.Thread(target=task)
-    thread.start()
 
 
 @app.route('/twitch/process_vod/<vod_id>', methods=['POST'])
@@ -61,12 +51,15 @@ def twitch_vod_processing_route(vod_id):
         if (time_diff > max_length or start_time >= end_time):
             abort(400, 'Bad timestamps')
 
-        process_twitch_vod_async(
-            vod_id,
-            start_time,
-            end_time,
-            user_id,
-        )
+        try:
+            process_twitch_vod_async(
+                vod_id,
+                start_time,
+                end_time,
+                user_id,
+            )
+        except ValueError as e:
+            abort(400, str(e))
 
         return {
             'message': 'Vod processing received'
