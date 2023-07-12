@@ -1,12 +1,15 @@
+import api.routes
 from flask_socketio import SocketIO
 from api import create_app
 
 
 app = create_app()
-socketio = SocketIO(app, cors_allowed_origins='*')
-
-
-import api.routes
+socketio = SocketIO(
+    app,
+    cors_allowed_origins='*',
+    ping_interval=5000,
+    ping_timeout=10000
+)
 
 
 @socketio.on('connect')
