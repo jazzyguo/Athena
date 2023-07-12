@@ -141,8 +141,6 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
     )
 
     while ((not results or len(results) < minimum_clips) and threshold > 0):
-        print('threshold is currently', threshold)
-
         for i in range(0, audio_frame_count, frame_intervals):
             if (i <= current_frame):
                 continue
