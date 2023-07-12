@@ -5,9 +5,15 @@ services:
       context: ./
       dockerfile: Dockerfile.local
     entrypoint:
-      - flask
-      - run
-      - --host=0.0.0.0
+      - gunicorn
+      - --worker-class=eventlet
+      - --bind=0.0.0.0:5000
+      - -w=1
+      - app:app
+      - --reload
+      - --timeout=300
+      - --capture-output
+      - --log-level=debug
     environment:
       FLASK_DEBUG: "on"
       FLASK_APP: ./app.py

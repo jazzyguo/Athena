@@ -6,9 +6,8 @@ app = create_app()
 socketio = SocketIO(
     app,
     cors_allowed_origins='*',
-    ping_interval=5000,
-    ping_timeout=10000,
     transports=['websocket', 'polling'],
+    async_mode='eventlet',
 )
 
 

@@ -36,7 +36,7 @@ def make_clip(
         clip_number: int,
 ) -> str:
     print(
-        f'Starting to clip {clip_number} - frames {[start_frame, end_frame]}...')
+        f'Starting to clip {clip_number} - frames {[start_frame, end_frame]}...', flush=True)
     video = VideoFileClip(input_file)
     path = input_file
     filename = os.path.basename(path)
@@ -95,6 +95,7 @@ def make_clips(
 
 
 def process_video(temp_dir, **kwargs) -> List[str]:
+    print('Video processing started', flush=True)
     seconds_to_capture: int = kwargs.get(
         'seconds_to_capture', default_seconds_to_capture
     )
@@ -113,7 +114,7 @@ def process_video(temp_dir, **kwargs) -> List[str]:
 
     frame_rate = get_frame_rate(input_file)
 
-    print(f"Frame rate: {frame_rate}")
+    print(f"Frame rate: {frame_rate}", flush=True)
 
     frames_to_clip: Frames = get_loud_frames(
         audio_output,

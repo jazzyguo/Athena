@@ -18,12 +18,12 @@ def format_duration(duration_seconds):
 
 def twitch_vod_processing(vod_id, start_time, end_time, user_id):
     # fetch twitch access token using user_id
-    user_ref = db.collection('users').document(user_id)
-    user_doc = user_ref.get()
-
-    if user_doc.exists:
-        access_token = user_doc.get('connections').get(
-            'twitch').get('access_token')
+    # user_ref = db.collection('users').document(user_id)
+    # user_doc = user_ref.get()
+    # print(f'User doc fetched {user_doc}', flush=True)
+    if True or user_doc.exists:
+        # access_token = user_doc.get('connections').get(
+        #     'twitch').get('access_token')
 
         with tempfile.TemporaryDirectory() as temp_dir:
             try:
@@ -45,8 +45,8 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                     vod_id,
                 ]
 
-                if MODE == 'production' and user_id != 'n7wHc2evvDVlhlJHV29R1Px6Zgk1':
-                    args += ['--auth-token', access_token]
+                # if MODE == 'production' and user_id != 'n7wHc2evvDVlhlJHV29R1Px6Zgk1':
+                #     args += ['--auth-token', access_token]
 
                 process = subprocess.Popen(args, stdout=True)
                 process.wait()
@@ -58,4 +58,6 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                     s3_file_prefix="twitch-"
                 )
             except ValueError as e:
-                abort(400, str(e))
+                print(f'Error twitch void processing {e}', flush=True)
+    else:
+        print('No user document existing', flush=True)

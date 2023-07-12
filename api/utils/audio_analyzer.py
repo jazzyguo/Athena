@@ -41,8 +41,8 @@ def get_db_levels_per_frame(audio_file: str, frame_rate: float) -> Tuple[List[in
         math.ceil(audio_sample_count/samples_per_frame)
     )
 
-    print('audio frame count', audio_frame_count)
-    print('samples per frame', samples_per_frame)
+    print('audio frame count', audio_frame_count, flush=True)
+    print('samples per frame', samples_per_frame, flush=True)
 
     # this stores frame by frame db levels
     frame_audio_db_levels: List[int] = []
@@ -133,11 +133,11 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
     threshold: float = ((highest_interval_db_avg - total_db_avg) / 2) + \
         (highest_db_level - highest_interval_db_avg)
 
-    print('The highest average db for an interval is', highest_interval_db_avg)
-    print('The highest db for a single frame is', highest_db_level)
-    print('Total average of all frame intervals', total_db_avg)
+    print('The highest average db for an interval is', highest_interval_db_avg, flush=True)
+    print('The highest db for a single frame is', highest_db_level, flush=True)
+    print('Total average of all frame intervals', total_db_avg, flush=True)
     print(
-        f"Identifying frame intervals of {frame_intervals} to see which is the loudest"
+        f"Identifying frame intervals of {frame_intervals} to see which is the loudest", flush=True
     )
 
     while ((not results or len(results) < minimum_clips) and threshold > 0):
@@ -162,10 +162,6 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
             ) / frame_intervals
 
             diff = db_level - total_db_avg
-
-            # print(
-            #     f"Frames {i} - {interval_end_frame} have a db level of {db_level}"
-            # )
 
             if diff > threshold:
                 print(
