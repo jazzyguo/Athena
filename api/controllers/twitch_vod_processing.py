@@ -1,6 +1,5 @@
-from flask import abort, jsonify
+from flask import abort
 from api.utils import process_video
-from api.s3 import upload_files_to_s3
 import os
 import time
 import tempfile
@@ -19,7 +18,6 @@ def format_duration(duration_seconds):
 
 def twitch_vod_processing(vod_id, start_time, end_time, user_id):
     clips = []
-    uploaded_clips = []
 
     # fetch twitch access token using user_id
     user_ref = db.collection('users').document(user_id)
@@ -55,15 +53,14 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                 process = subprocess.Popen(args, stdout=True)
                 process.wait()
 
-                clips = process_video(temp_dir, input_file=temp_filepath)
+                clips = process_video(
+                    temp_dir,
+                    input_file=temp_filepath,
+                    s3_folder_path=f"{user_id}",
+                    s3_file_prefix="twitch-"
+                )
 
             except ValueError as e:
                 abort(400, str(e))
 
-            uploaded_clips = upload_files_to_s3(
-                clips,
-                folder_path=f"{user_id}",
-                file_prefix="twitch-"
-            )
-
-    return uploaded_clips
+    return clips
