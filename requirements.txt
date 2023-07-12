@@ -12,4 +12,4 @@ pytz
 firebase-admin
 tweepy
 gunicorn
-eventlet==0.30.2
+gevent-websocket
