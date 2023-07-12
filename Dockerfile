@@ -18,4 +18,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # Specify the entry point and command to run the WSGI server
-CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:5000", "--workers", "4"]
+CMD ["gunicorn", "-k", "eventlet", "-b", "0.0.0.0:5000" "-w", "1"]

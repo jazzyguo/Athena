@@ -12,3 +12,5 @@ pytz
 firebase-admin
 tweepy
 gunicorn
+gevent-websocket
+eventlet
