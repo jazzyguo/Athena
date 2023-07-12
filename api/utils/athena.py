@@ -58,7 +58,7 @@ def make_clip(
 
     # s3_folder_path is just the user_id
     socketio.emit(
-        f'twitch_vod_clip_generated_{s3_folder_path}', uploaded_file
+        f'clip_generated_{s3_folder_path}', uploaded_file
     )
 
     os.remove(output_file_path)
