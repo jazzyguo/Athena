@@ -17,8 +17,6 @@ def format_duration(duration_seconds):
 
 
 def twitch_vod_processing(vod_id, start_time, end_time, user_id):
-    clips = []
-
     # fetch twitch access token using user_id
     user_ref = db.collection('users').document(user_id)
     user_doc = user_ref.get()
@@ -53,14 +51,11 @@ def twitch_vod_processing(vod_id, start_time, end_time, user_id):
                 process = subprocess.Popen(args, stdout=True)
                 process.wait()
 
-                clips = process_video(
+                process_video(
                     temp_dir,
                     input_file=temp_filepath,
                     s3_folder_path=f"{user_id}",
                     s3_file_prefix="twitch-"
                 )
-
             except ValueError as e:
                 abort(400, str(e))
-
-    return clips
