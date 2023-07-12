@@ -1,7 +1,6 @@
 import subprocess
 import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
-import concurrent.futures
 from typing import List, BinaryIO
 from api.s3 import upload_file_to_s3
 from app import socketio
@@ -73,29 +72,24 @@ def make_clips(
         s3_folder_path: str,
         s3_file_prefix: str
 ) -> List[str]:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-        futures = []
-        for i, frames in enumerate(frames_to_clip):
-            start_frame, end_frame = frames
-            futures.append(executor.submit(
-                make_clip,
+    results = []
+
+    for i, frames in enumerate(frames_to_clip):
+        start_frame, end_frame = frames
+
+        try:
+            clip = make_clip(
                 input_file,
                 temp_dir,
                 s3_folder_path,
                 s3_file_prefix,
                 start_frame,
                 end_frame,
-                i
-            ))
-
-        results = []
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                result = future.result()
-            except Exception as exc:
-                print(f"Error creating clip for clip {i} - {exc}")
-            else:
-                results.append(result)
+                i,
+            )
+            results.append(clip)
+        except Exception as exc:
+            print(f"Error creating clip for clip {i} - {exc}")
 
     return results
 
