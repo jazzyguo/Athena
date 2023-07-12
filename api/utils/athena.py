@@ -4,7 +4,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 import concurrent.futures
 from typing import List, BinaryIO
 from api.s3 import upload_file_to_s3
-
+from app import socketio
 from .audio_analyzer import get_loud_frames, Frames
 from api.config import (
     default_seconds_to_capture,
@@ -54,6 +54,11 @@ def make_clip(
         s3_folder_path,
         output_file_path,
         s3_file_prefix,
+    )
+
+    # s3_folder_path is just the user_id
+    socketio.emit(
+        f'twitch_vod_clip_generated_{s3_folder_path}', uploaded_file
     )
 
     os.remove(output_file_path)

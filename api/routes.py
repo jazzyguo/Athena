@@ -34,8 +34,8 @@ def process_file_route():
 
 def process_twitch_vod_async(vod_id, start_time, end_time, user_id):
     def task():
-        clips = twitch_vod_processing(vod_id, start_time, end_time, user_id)
-        socketio.emit(f'twitch_vod_processed_{user_id}', clips)
+        twitch_vod_processing(vod_id, start_time, end_time, user_id)
+        socketio.emit(f'twitch_vod_processed_{user_id}')
 
     thread = threading.Thread(target=task)
     thread.start()
