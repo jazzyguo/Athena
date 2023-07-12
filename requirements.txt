@@ -11,5 +11,6 @@ Flask-SocketIO
 pytz
 firebase-admin
 tweepy
-gunicorn==20.1.0
-eventlet==0.30.2
+gunicorn
+gevent
+gevent-websocket

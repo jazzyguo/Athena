@@ -6,9 +6,9 @@ services:
       dockerfile: Dockerfile.local
     entrypoint:
       - gunicorn
-      - --worker-class=eventlet
+      - --worker-class=geventwebsocket.gunicorn.workers.GeventWebSocketWorker
       - --bind=0.0.0.0:5000
-      - -w=1
+      - -w=4
       - app:app
       - --reload
       - --timeout=300

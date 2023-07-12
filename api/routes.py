@@ -15,7 +15,7 @@ from .controllers import (
     clips_publish_twitter
 )
 from app import app, socketio
-import eventlet
+import gevent
 
 
 @app.route('/')
@@ -38,7 +38,7 @@ def process_twitch_vod_async(vod_id, start_time, end_time, user_id):
         twitch_vod_processing(vod_id, start_time, end_time, user_id)
         socketio.emit(f'twitch_vod_processed_{user_id}')
 
-    eventlet.spawn(task)
+    gevent.spawn(task)
 
 
 @app.route('/twitch/process_vod/<vod_id>', methods=['POST'])
@@ -60,13 +60,13 @@ def twitch_vod_processing_route(vod_id):
 
         if (time_diff > max_length or start_time >= end_time):
             abort(400, 'Bad timestamps')
-    
-        # process_twitch_vod_async(
-        #     vod_id,
-        #     start_time,
-        #     end_time,
-        #     user_id,
-        # )
+
+        process_twitch_vod_async(
+            vod_id,
+            start_time,
+            end_time,
+            user_id,
+        )
 
         return {
             'message': 'Vod processing received'

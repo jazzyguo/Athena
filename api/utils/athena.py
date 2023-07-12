@@ -49,11 +49,15 @@ def make_clip(
         logger=None,
     )
 
+    print(f'clip written and now uploading to s3', flush=True)
+
     uploaded_file = upload_file_to_s3(
         s3_folder_path,
         output_file_path,
         s3_file_prefix,
     )
+
+    print(f'clip uploaded', flush=True)
 
     # s3_folder_path is just the user_id
     socketio.emit(

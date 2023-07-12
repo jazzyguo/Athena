@@ -1,5 +1,11 @@
 from flask_socketio import SocketIO
 from api import create_app
+from gevent import monkey
+import grpc.experimental.gevent as grpc_gevent
+
+
+monkey.patch_all()
+grpc_gevent.init_gevent()
 
 
 app = create_app()
@@ -7,7 +13,7 @@ socketio = SocketIO(
     app,
     cors_allowed_origins='*',
     transports=['websocket', 'polling'],
-    async_mode='eventlet',
+    async_mode='gevent',
 )
 
 
