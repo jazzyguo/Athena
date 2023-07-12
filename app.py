@@ -1,4 +1,3 @@
-import api.routes
 from flask_socketio import SocketIO
 from api import create_app
 
@@ -24,3 +23,6 @@ def handle_disconnect():
 
 if __name__ == '__main__':
     socketio.run(app)
+
+
+import api.routes
