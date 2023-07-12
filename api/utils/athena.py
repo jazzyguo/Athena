@@ -68,7 +68,7 @@ def make_clips(
         s3_folder_path: str,
         s3_file_prefix: str
 ) -> List[str]:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         futures = []
         for i, frames in enumerate(frames_to_clip):
             start_frame, end_frame = frames
