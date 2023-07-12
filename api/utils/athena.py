@@ -44,7 +44,11 @@ def make_clip(
     name = os.path.splitext(filename)[0]
     output_file_path = f'{temp_dir}/{name}__frames-{start_frame}to{end_frame}.mp4'
     clip = video.subclip(start_frame / video.fps, end_frame / video.fps)
-    clip.write_videofile(output_file_path)
+    clip.write_videofile(
+        output_file_path,
+        verbose=False,
+        logger=None,
+    )
 
     uploaded_file = upload_file_to_s3(
         s3_folder_path,
