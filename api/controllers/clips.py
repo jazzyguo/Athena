@@ -66,10 +66,13 @@ def save_clip(user_id, s3_key):
     clips_ref = db.collection('clips').document(user_id)
     clips_doc = clips_ref.get()
 
+    timestamp = generate_timestamp()
+
     new_saved_clip = {
         'saved': True,
         'key': s3_key,
-        'url': f"https://{media_bucket}.s3.amazonaws.com/{s3_key}"
+        'url': f"https://{media_bucket}.s3.amazonaws.com/{s3_key}",
+        'timestamp': timestamp,
     }
 
     if clips_doc.exists:
@@ -79,6 +82,7 @@ def save_clip(user_id, s3_key):
             if clip['key'] == s3_key:
                 exists = True
                 clip['saved'] = True
+                clip['timestamp'] = timestamp
 
         if exists == False:
             existing_saved_clips.append(new_saved_clip)
