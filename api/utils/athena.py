@@ -36,7 +36,7 @@ def make_clip(
         clip_number: int,
 ) -> str:
     print(
-        f'Starting to clip {clip_number} - frames {[start_frame, end_frame]}...', flush=True)
+        f'Starting to clip {clip_number+1} - frames {[start_frame, end_frame]}...', flush=True)
     video = VideoFileClip(input_file)
     path = input_file
     filename = os.path.basename(path)
@@ -49,7 +49,7 @@ def make_clip(
         logger=None,
     )
 
-    print(f'clip written and now uploading to s3', flush=True)
+    print(f'Clip {clip_number+1} written and now uploading to s3', flush=True)
 
     uploaded_file = upload_file_to_s3(
         s3_folder_path,
@@ -57,7 +57,7 @@ def make_clip(
         s3_file_prefix,
     )
 
-    print(f'clip uploaded', flush=True)
+    print(f'Clip {clip_number+1} uploaded successfully', flush=True)
 
     # s3_folder_path is just the user_id
     socketio.emit(
