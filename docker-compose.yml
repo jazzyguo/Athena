@@ -8,7 +8,7 @@ services:
       - gunicorn
       - --worker-class=geventwebsocket.gunicorn.workers.GeventWebSocketWorker
       - --bind=0.0.0.0:5000
-      - -w=4
+      - -w=1
       - app:app
       - --reload
       - --timeout=300

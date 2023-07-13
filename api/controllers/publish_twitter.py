@@ -25,15 +25,18 @@ def clips_publish_twitter(user_id, content, clip_url):
         user_doc = user_ref.get()
 
         if user_doc.exists:
-            access_token = user_doc.get('connections').get('twitter').get('access_token')
-            access_token_secret = user_doc.get('connections').get('twitter').get('access_token_secret')
-            screen_name = user_doc.get('connections').get('twitter').get('screen_name')
+            access_token = user_doc.get('connections').get(
+                'twitter').get('access_token')
+            access_token_secret = user_doc.get('connections').get(
+                'twitter').get('access_token_secret')
+            screen_name = user_doc.get('connections').get(
+                'twitter').get('screen_name')
 
             # Authenticate with Twitter API using the access tokens
             auth = tweepy.OAuth1UserHandler(
-                TWITTER_API_KEY, 
-                TWITTER_API_SECRET, 
-                access_token, 
+                TWITTER_API_KEY,
+                TWITTER_API_SECRET,
+                access_token,
                 access_token_secret
             )
 
@@ -53,17 +56,18 @@ def clips_publish_twitter(user_id, content, clip_url):
                 )
 
                 # v2 twitter api to create the tweet
-                api = authenticate_twitter_v2_api(access_token, access_token_secret)
+                api = authenticate_twitter_v2_api(
+                    access_token, access_token_secret)
 
                 tweet = api.create_tweet(
-                    text=content, 
+                    text=content,
                     media_ids=[media.media_id]
                 )
-            
+
                 tweet_id = tweet.data['id']
 
-                tweet_url = f"https://twitter.com/{screen_name}/status/{tweet_id}"                               
-                
+                tweet_url = f"https://twitter.com/{screen_name}/status/{tweet_id}"
+
                 # Save publishing info within Firestore on the specific clip
                 clips_ref = db.collection('clips').document(user_id)
                 clips_doc = clips_ref.get()
@@ -92,7 +96,7 @@ def clips_publish_twitter(user_id, content, clip_url):
                     })
 
                 return jsonify({
-                    'url': tweet_url, 
+                    'url': tweet_url,
                     'published_at': published_at
                 }), 200
 
@@ -100,7 +104,7 @@ def clips_publish_twitter(user_id, content, clip_url):
                 print(e)
                 abort(500, str(e))
         else:
-            abort(404) # User not found in Firestore
+            abort(404)  # User not found in Firestore
 
     except Exception as e:
         print('Publish twitter clip error', e)

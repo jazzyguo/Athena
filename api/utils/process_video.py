@@ -36,7 +36,8 @@ def make_clip(
         clip_number: int,
 ) -> str:
     print(
-        f'Starting to clip {clip_number+1} - frames {[start_frame, end_frame]}...', flush=True)
+        f'Starting to clip {clip_number+1} - frames {[start_frame, end_frame]}...', flush=True
+    )
     video = VideoFileClip(input_file)
     path = input_file
     filename = os.path.basename(path)

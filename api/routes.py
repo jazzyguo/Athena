@@ -3,7 +3,6 @@ from typing import BinaryIO
 from .middleware import auth_required
 from .controllers import (
     process_file,
-    twitch_vod_processing,
     get_saved_clips,
     get_temp_clips,
     save_clip,
@@ -12,10 +11,10 @@ from .controllers import (
     twitter_callback,
     twitter_auth_delete,
     twitch_auth,
-    clips_publish_twitter
+    clips_publish_twitter,
+    twitch_vod_processing,
 )
-from app import app, socketio
-import gevent
+from app import app
 
 
 @app.route('/')
@@ -30,15 +29,6 @@ def process_file_route():
     uploaded_video: BinaryIO = request.files['videoFile']
 
     return process_file(user_id, uploaded_video)
-
-
-def process_twitch_vod_async(vod_id, start_time, end_time, user_id):
-    def task():
-        print('Twich vod process task started', flush=True)
-        twitch_vod_processing(vod_id, start_time, end_time, user_id)
-        socketio.emit(f'twitch_vod_processed_{user_id}')
-
-    gevent.spawn(task)
 
 
 @app.route('/twitch/process_vod/<vod_id>', methods=['POST'])
@@ -61,7 +51,8 @@ def twitch_vod_processing_route(vod_id):
         if (time_diff > max_length or start_time >= end_time):
             abort(400, 'Bad timestamps')
 
-        process_twitch_vod_async(
+        # fires async task
+        twitch_vod_processing(
             vod_id,
             start_time,
             end_time,
