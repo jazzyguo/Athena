@@ -26,6 +26,9 @@ def get_saved_clips(user_id):
     if clips_ref.get().exists:
         saved_clips = clips_ref.get().to_dict().get('saved', [])
         results = [clip for clip in saved_clips if clip.get('saved', False)]
+        results = sorted(
+            results, key=lambda obj: obj['timestamp'], reverse=True
+        )
 
     return results
 
@@ -55,13 +58,14 @@ def get_temp_clips(user_id):
             })
 
     sorted_objects = sorted(
-        s3_objects, key=lambda x: x['created_at'], reverse=True)
+        s3_objects, key=lambda x: x['created_at'], reverse=True
+    )
 
     return sorted_objects
 
 
 def save_clip(user_id, s3_key):
-    exists = False # we append to firestore
+    exists = False  # we append to firestore
 
     clips_ref = db.collection('clips').document(user_id)
     clips_doc = clips_ref.get()
@@ -102,7 +106,7 @@ def save_clip(user_id, s3_key):
         Bucket=media_bucket,
         Key=s3_key,
         CopySource={
-            'Bucket': temp_bucket, 
+            'Bucket': temp_bucket,
             'Key': s3_key
         }
     )
@@ -120,10 +124,10 @@ def delete_clip(user_id, s3_key):
     # Copy the file to the temporary clips directory if it doesn't exist
     if not file_exists:
         s3.copy_object(
-            Bucket=temp_bucket, 
-            Key=s3_key, 
+            Bucket=temp_bucket,
+            Key=s3_key,
             CopySource={
-                'Bucket': media_bucket, 
+                'Bucket': media_bucket,
                 'Key': s3_key,
             }
         )
@@ -149,7 +153,7 @@ def delete_clip(user_id, s3_key):
     timestamp = generate_timestamp()
 
     return jsonify({
-        'url': temp_url, 
-        'key': s3_key, 
+        'url': temp_url,
+        'key': s3_key,
         'created_at': timestamp
     }), 200

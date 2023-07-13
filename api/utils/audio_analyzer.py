@@ -133,7 +133,8 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
     threshold: float = ((highest_interval_db_avg - total_db_avg) / 2) + \
         (highest_db_level - highest_interval_db_avg)
 
-    print('The highest average db for an interval is', highest_interval_db_avg, flush=True)
+    print('The highest average db for an interval is',
+          highest_interval_db_avg, flush=True)
     print('The highest db for a single frame is', highest_db_level, flush=True)
     print('Total average of all frame intervals', total_db_avg, flush=True)
     print(
@@ -169,7 +170,8 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
                 )
 
                 # capture this amount of frames before and after current frame based on how many seconds
-                capture_end = min(audio_frame_count, i + frames_to_capture_after)
+                capture_end = min(audio_frame_count, i +
+                                  frames_to_capture_after)
 
                 results.append({
                     'interval': [i, interval_end_frame],
@@ -186,7 +188,8 @@ def get_loud_frames(audio_file: str, frame_rate: int, **kwargs) -> Frames:
             f"Too many results - retrieving the {maximum_clips} loudest frames"
         )
         sorted_results: Frames = sorted(
-            results, key=lambda obj: obj['db_level'], reverse=True)
+            results, key=lambda obj: obj['db_level'], reverse=True
+        )
         results = sorted_results[:maximum_clips]
 
     frames_to_clip = get_frames_to_clip(
