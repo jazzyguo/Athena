@@ -10,6 +10,8 @@ from api.config import (
     default_minimum_clips,
     default_maximum_clips
 )
+import math
+from .pad_interval import pad_interval
 
 
 def extract_audio(input_file: str, output_file: str) -> None:
@@ -34,15 +36,25 @@ def make_clip(
         start_frame: int,
         end_frame: int,
         clip_number: int,
+        frame_rate: float,
 ) -> str:
-    print(
-        f'Starting to clip {clip_number+1} - frames {[start_frame, end_frame]}...', flush=True
+    start_time = int(math.ceil(start_frame / frame_rate))
+    end_time = int(math.ceil(end_frame / frame_rate))
+
+    padded_start_time, padded_end_time = pad_interval(
+        start_time,
+        end_time,
     )
+
+    print(
+        f'Starting to clip {clip_number+1} - time {[padded_start_time, padded_end_time]}...', flush=True
+    )
+
     video = VideoFileClip(input_file)
     path = input_file
     filename = os.path.basename(path)
     name = os.path.splitext(filename)[0]
-    output_file_path = f'{temp_dir}/{name}__frames-{start_frame}to{end_frame}.mp4'
+    output_file_path = f'{temp_dir}/{name}____timestamp-{padded_start_time}to{padded_end_time}.mp4'
     clip = video.subclip(start_frame / video.fps, end_frame / video.fps)
     clip.write_videofile(
         output_file_path,
@@ -75,7 +87,8 @@ def make_clips(
         temp_dir: str,
         frames_to_clip: Frames,
         s3_folder_path: str,
-        s3_file_prefix: str
+        s3_file_prefix: str,
+        frame_rate: float,
 ) -> List[str]:
     results = []
 
@@ -91,6 +104,7 @@ def make_clips(
                 start_frame,
                 end_frame,
                 i,
+                frame_rate,
             )
             results.append(clip)
         except Exception as exc:
@@ -136,6 +150,7 @@ def process_video_file(temp_dir, **kwargs) -> List[str]:
             frames_to_clip,
             s3_folder_path,
             s3_file_prefix,
+            frame_rate,
         )
     except Exception as e:
         print(f"Error generating clips: {e}")
