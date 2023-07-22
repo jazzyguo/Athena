@@ -1,5 +1,5 @@
 from flask import abort, jsonify
-from api.utils import process_video
+from api.utils import process_video_file
 from api.s3 import upload_files_to_s3
 import os
 import time
@@ -25,7 +25,7 @@ def process_file(user_id, uploaded_video):
             temp_filepath = os.path.join(temp_dir, temp_filename)
             uploaded_video.save(temp_filepath)
 
-            clips = process_video(temp_dir, input_file=temp_filepath)
+            clips = process_video_file(temp_dir, input_file=temp_filepath)
         except ValueError as e:
             abort(400, str(e))
 

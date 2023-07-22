@@ -99,7 +99,7 @@ def make_clips(
     return results
 
 
-def process_video(temp_dir, **kwargs) -> List[str]:
+def process_video_file(temp_dir, **kwargs) -> List[str]:
     print('Video processing started', flush=True)
     seconds_to_capture: int = kwargs.get(
         'seconds_to_capture', default_seconds_to_capture
