@@ -54,7 +54,7 @@ def make_clip(
     path = input_file
     filename = os.path.basename(path)
     name = os.path.splitext(filename)[0]
-    output_file_path = f'{temp_dir}/{name}____timestamp-{padded_start_time}to{padded_end_time}.mp4'
+    output_file_path = f'{temp_dir}/{name}_timestamp-{padded_start_time}to{padded_end_time}.mp4'
     clip = video.subclip(start_frame / video.fps, end_frame / video.fps)
     clip.write_videofile(
         output_file_path,
