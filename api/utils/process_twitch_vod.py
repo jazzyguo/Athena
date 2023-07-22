@@ -172,7 +172,7 @@ def make_clip(
     path = audio_output_wav
     filename = os.path.basename(path)
     name = os.path.splitext(filename)[0]
-    output_file_path = f'{temp_dir}/{name}__timestamp-{padded_start_time}to{padded_end_time}.mp4'
+    output_file_path = f'{temp_dir}/{name}__timestamp-{padded_start_time}to{padded_end_time+10}.mp4'
 
     # Configure twitch-dl options
     args = [
